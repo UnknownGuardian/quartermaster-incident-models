@@ -1,6 +1,6 @@
 import { Event, TimedDependency } from "../../src";
 
-export class ParserService extends TimedDependency {
+export class RagelParser extends TimedDependency {
   eventsWithMalformedData: number = 0.9999;
   async workOn(event: Event): Promise<void> {
     await super.workOn(event);

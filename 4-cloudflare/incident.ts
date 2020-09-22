@@ -8,17 +8,14 @@
 
 import {
   simulation,
-  stageSummary,
   eventSummary,
-  metronome,
-  stats,
-  Event, WrappedStage
+  Event
 } from "../../src";
 import { EmailOfuscationService } from "./email-obfuscation-service";
-import { ParserService } from "./parser-service";
+import { RagelParser } from "./ragel-service";
 
 
-const parser = new ParserService();
+const parser = new RagelParser();
 const emailObfuscationService = new EmailOfuscationService(parser);
 
 // scenario
