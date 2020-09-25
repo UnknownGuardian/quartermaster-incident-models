@@ -1,5 +1,5 @@
 import { Server } from "http";
-import { Stage, Event, metronome, normal, exponential, FIFOQueue, TimedDependency} from "../../src";
+import { Stage, Event, metronome, normal, exponential, FIFOQueue, TimedDependency, WrappedStage} from "../../src";
  
 /*  
     TODO'S:
@@ -12,17 +12,16 @@ export class Database extends TimedDependency {
   //mserver: Master;
   //rserver1: Replica;
   //rserver2: Replica;
-  constructor(mserver: Master, rserver1: Replica, rserver2: Replica) {
+  constructor(server1: DbServer, server2: DbServer, server3: DbServer) {
     super();
-    this.dbrunning = mserver.running;
-
+    if (server1.running || server2.running || server3.running) {
+      this.dbrunning = true;
+    }
+    else {
+      this.dbrunning = false;
+    }
+    
     this.inQueue = new FIFOQueue(1, 10); 
-//    mserver: Master;
-//    rserver1: Replica;
-//    rserver2: Replica;
-//    this.mserver = new Master(this.updating, this.productionState);
-//    this.rserver1 = new Replica(this.updating, this.productionState);
-//    this.rserver2 = new Replica(this.updating, this.productionState);
   }
 
 
@@ -31,9 +30,17 @@ export class Database extends TimedDependency {
     if (!this.dbrunning) {
         throw "fail";
     }
-    super.workOn(event);
+    else {
+      super.workOn(event);
+  
+    }
   }
 
+  function newMaster(db: Database): any {
+    if (this.master == undefined) && this.connection && this.running) {
+  
+    }
+  }
   /*
   async  workOn(event:Event): Promise<void> {
     //connection: boolean = testConnection(Database);
@@ -65,8 +72,8 @@ function testConnection(server: any): void {
 */
 
 //u = update, p = productionState, c = connection, returns status of running
-function testReplicaStatus(u: boolean, p: boolean, c: boolean): boolean {
-  if ( (u && p) || (!c) ) {
+function testServerStatus(u: boolean, p: boolean): boolean {
+  if ( (u && p)) {
     return false; //Not running
   }
   else {
@@ -74,17 +81,8 @@ function testReplicaStatus(u: boolean, p: boolean, c: boolean): boolean {
   }
 }
 
-//u = update, p = productionState, returns status of running
-function testMasterStatus(u: boolean, p: boolean): boolean {
-  if (u && p) {
-    return false; //Not running
-  }
-  else {
-    return true; //Running
-  }
-}
-
-export class Master /*extends Database*/ { 
+/*
+export class Master // extends Database { 
   updating: boolean;
   productionState: boolean;
   running: boolean;
@@ -96,18 +94,68 @@ export class Master /*extends Database*/ {
   }
 }
 
-export class Replica /*extends Database*/ {
-  updating: boolean;
-  productionState: boolean;
-  running: boolean;
-  connection: boolean;          //status of connection to master.
-  master: any;                  //stores reference to the replica's master.
-  constructor(u: boolean, p: boolean, c: boolean, m: any) {
-    //super();
+*/
+
+export class DbServer extends WrappedStage {
+  updating: boolean;            //arbitrary input
+  productionState: boolean;     //arbitrary input
+  running: boolean;             //Function testServerStatus determines value.
+  connection: boolean;          //status of connection to master. Initially set arbitrarily at declaration, changes if servers fail. False if unconnected.
+  master: any;                  //Arbitrary input. Stores reference to the replica's master.
+  constructor(u: boolean, p: boolean, c: boolean, m: any, protected wrapped: Stage) {
+    super(wrapped);
     this.updating = u;
     this.productionState = p;
     this.connection = c;
-    this.running = testReplicaStatus(u,p,c);
+    this.running = testServerStatus(u,p);
     this.master = m;
-   }
+  }
+   /*
+    if (m == undefined && this.connection && this.running): {
+        async this.workOn(event:Event): Promise<void> {
+          // do some work
+          //super.workOn(event);
+          //const instance = this.sendTrafficTo(event);
+          //await instance.accept(event); 
+    }
+    
+
+    }
+    else {
+      throw "fail";
+    }
+    */
+
+    /* If server is not connected to master but is connected and is running, then it is a running master. 
+    *  Events are only passed to the master, so only the master will pass and process the event.
+    */
+  async workOn(event:Event): Promise<void>  {
+    // do some work
+    //super.workOn(event);
+    //const instance = this.sendTrafficTo(event);
+    //await instance.accept(event); 
+    /*
+    const available = Math.random() < this.availability;
+    if ((this.master == undefined) && this.connection && this.running) {
+        const latency = normal(this.mean, this.std);
+        await metronome.wait(latency);
+        return;
+      }
+  
+      const latency = normal(this.errorMean, this.errorStd);
+      await metronome.wait(latency);
+      return Promise.reject("fail");
+    }
+    */
+    //const instance = this.sendTrafficTo(event);
+
+    if ((this.master == undefined) && this.connection && this.running) { 
+      super.workOn(event);  
+      return;
+    }
+    else {
+      throw "Fail";
+    }
+
+  }
 }

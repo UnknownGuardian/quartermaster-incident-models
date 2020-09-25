@@ -19,6 +19,11 @@ Model in database:
     Boolean state in servers indicating traffic service.
     Servers process traffic and return
 
+### Diagrams
+
+version 1: https://app.lucidchart.com/documents/edit/e9476a59-558c-49f6-9618-0bc8440e7754/0_0
+version 2: https://app.lucidchart.com/documents/edit/fa0aa99e-1d27-47be-9bf7-c9c39c0cd75b/0_0#?folder_id=home&browser=icon
+
 ## Practical Applications
 
 What engineers want to ask the system? Questions?
@@ -34,11 +39,6 @@ ELB for distributing web requests to multiple databases
 Website/API stage receives requests from internet and makes calls to databases.
 failing database returns error if severed.
 Which stages come in which order?
-
-## Diagrams
-
-version 1: https://app.lucidchart.com/documents/edit/e9476a59-558c-49f6-9618-0bc8440e7754/0_0
-version 2: https://app.lucidchart.com/documents/edit/fa0aa99e-1d27-47be-9bf7-c9c39c0cd75b/0_0#?folder_id=home&browser=icon
 
 ## Notes
 

@@ -16,34 +16,34 @@ import {
     stats,
     eventSummary
   } from "../../src";
-  import { Database, Master, Replica } from "./database"
+  import { Database, DbServer } from "./database"
   import { APIService } from "./api-service"
   import { Balancer } from "./balancer";
 
   /*  
      database 1
-     Master passes running status
-     Replica 1 fails running status
-     Replica 2 fails running status
+     Server 1 (Master) passes running status
+     Server 2 fails running status
+     Server 3 fails running status
   */  
-  const m1 = new Master(false, true);
-  const r1 = new Replica(true, true, true, m1);
-  const r2 = new Replica(true, true, false, m1);
+  const s1 = new DbServer(false, true, true, undefined);
+  const s2 = new DbServer(true, true, true, s1);
+  const s3 = new DbServer(true, true, false, undefined);
   //r1.master = m1; //TODO redundant b/c declaration and instantiation of this.master in Replica constructor?
   //r2.master = m1; //Ask Matt
-  const db1 = new Database(m1, r1, r2);
+  const db1 = new Database(s1, s2, s3);
   /*  
      database 2
-     Master fails running status
-     Replica 1 fails running status
-     Replica 2 fails running status
+     Server 4 (Master) fails running status
+     Server 5 fails running status
+     Server 6 passes running status, becomes master by default
   */
-  const m2 = new Master(true, true); // stage extensions should have 1 parameter, and those parameters should be stage objects, and that parameter can be an array. Reserve constructor for Stages to follow the decorator pattern.
-  const r3 = new Replica(false, true, true, m2);
-  const r4 = new Replica(false, true, true, m2);
+  const s4 = new DbServer(true, true, true, undefined); // stage extensions should have 1 parameter, and those parameters should be stage objects, and that parameter can be an array. Reserve constructor for Stages to follow the decorator pattern.
+  const s5 = new DbServer(false, true, true, s4);
+  const s6 = new DbServer(false, true, true, undefined);
   //r3.master = m2; //TODO redundant? Ask Matt, see line 31.
   //r4.master = m2;
-  const db2 = new Database(m2, r3, r4);
+  const db2 = new Database(s4, s5, s6);
   //db2.master = m2;
   //db2.replicas = [r3, r4]
   //balancer
