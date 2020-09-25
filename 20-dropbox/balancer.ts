@@ -1,8 +1,8 @@
 import { Stage, Event, metronome, normal } from "../../src";
-import { Database } from "./database"
+import { MySQLCluster } from "./database"
 
 export class Balancer extends Stage {
-  constructor(protected databases: Database[]) {
+  constructor(protected databases: MySQLCluster[]) {
     super();
   }
 
