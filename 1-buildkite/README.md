@@ -26,3 +26,7 @@ What we care about then is the:
 Questions We should want to consider:
 
 - We are scaling down to reduce cost. Lets assume that as we scale down, the new machines can't keep up. (duh). How does our system react to failing machines.
+
+## Expectations:
+
+- `dashboardInstances` drops to 0 as `cpu` is high (greater than 90%)

@@ -26,6 +26,11 @@ export class RedisCluster extends WrappedStage {
   // Choose a redis Intance to Serve the Request
   async workOn(event: Event): Promise<void> {
     const instance = this.sendTrafficTo(event);
+    if (!instance) {
+      // This should not happen, except I have seen the error "cannot call accept on undefined"
+      // I've tried to trigger this bug manually quite a few times, but can't quite.
+      console.error("no instances for event", event.key, "when instances are:", this.ring.map(x => !!x))
+    }
     await instance.accept(event);
   }
 

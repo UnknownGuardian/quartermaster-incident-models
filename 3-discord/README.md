@@ -25,3 +25,12 @@ Interested in: when cache fails, what happens to systems that depends on cache a
 ### Failure Ripples
 
 After a node has failed, traffic drastically increases to the wrapped dependency for some time until the new replacement cache has warmed up. This happens again after the cache expires, at the rate at which the cache was filled. The rate of traffic slows the shock up, so it isnt as drastic. This ripple continues for several iterations.
+
+## Expectations:
+
+- Redis instances warm up to have lots of objects in their cache (probably around 100)
+- at tick 50,000, number of objects drops to 0 for first 5 nodes
+- repeatedly afterwards, every 50,000 ticks until tick 200,000, you see a (possibly small) spike in concurrent database connections (cache refreshing)
+- at tick 200,000, number of objects drops to 0 for first 5 nodes and `apiState` goes from up to down
+- `redis-x` never fills for first 5 nodes, slowly decreases in size for last 5 nodes.
+- at tick 300,000 `apiState` goes up, `redis-x` starts to increase up to around 100
