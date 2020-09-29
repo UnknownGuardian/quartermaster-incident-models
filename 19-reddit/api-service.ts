@@ -1,4 +1,4 @@
-import { Stage, FIFOQueue, Event, metronome, normal } from "../../src";
+import { Stage, Event, metronome, normal } from "../../src";
 
 export class APIService extends Stage {
   constructor(protected wrapped: Stage) {

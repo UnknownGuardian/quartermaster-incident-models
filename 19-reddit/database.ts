@@ -1,3 +1,4 @@
+import { dir } from "console";
 import { Stage, FIFOQueue, Event, metronome, normal, exponential } from "../../src";
 export class Database extends Stage {
  
@@ -8,7 +9,7 @@ public concurrent = 0;
 
   constructor() {
     super();
-    this.inQueue = new FIFOQueue(1, 5);
+    this.inQueue = new FIFOQueue(1, 300);
   }
 
   async workOn(event: Event): Promise<void> {
@@ -19,9 +20,15 @@ public concurrent = 0;
     await metronome.wait(latency + extraLatency);
   
     if (Math.random() > 0.995){
-        this.inQueue.setNumWorkers(5);
-    }
 
+      if (this.inQueue.getNumWorkers() < 21) {
+        this.inQueue.setNumWorkers(10)
+      } else {
+        this.inQueue.setNumWorkers(this.inQueue.getNumWorkers() - 20);
+        
+      }
+
+    }
 
     
     this.concurrent--;

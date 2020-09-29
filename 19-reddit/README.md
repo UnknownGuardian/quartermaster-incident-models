@@ -1,4 +1,7 @@
 
+Link: https://www.reddit.com/r/announcements/comments/4y0m56/why_reddit_was_down_on_aug_11/
+
+
 # Architecture
 
 do not need ? Zookeeper

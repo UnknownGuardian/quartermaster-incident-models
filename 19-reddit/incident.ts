@@ -10,8 +10,6 @@
 
 import {
     metronome,
-    FIFOQueue,
-    Retry,
     simulation,
     stats,
     LRUCache,
@@ -43,7 +41,24 @@ work();
 
 
 
-function clearCache(){
+function poll() {
+  const now = metronome.now();
+
+  const eventRate = simulation.getArrivalRate();
+  const obj: any = {
+    now, eventRate, cacheSize : Object.keys(cache.getStore()).length
+  }
+
+  stats.record("poll", obj);
+}
+metronome.setInterval(poll, 1000);
+
+
+
+
+//function clearCache(){
+function zookeeperTerminated() {
   cache.clear();
 }
-metronome.setTimeout(clearCache, 8000);
+//metronome.setTimeout(zookeeperTerminated , 15000)
+metronome.setTimeout( zookeeperTerminated , 8000);
