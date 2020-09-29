@@ -9,20 +9,36 @@
  */
 
 import {
-    metronome,
-    simulation,
-    stats,
-    LRUCache,
-    Timeout,
-    stageSummary,
-    eventSummary
-  } from "../../src";
+  metronome,
+  simulation,
+  stats,
+  LRUCache,
+  Timeout,
+  stageSummary,
+  eventSummary,
+  WrappedStage,
+  Event
+} from "../../src";
 import { Database } from "./database"
 import { APIService } from "./api-service"
 
+
+class AvailableStage extends WrappedStage {
+  public availability = 1;
+  async workOn(event: Event): Promise<void> {
+    const available = Math.random() < this.availability;
+    if (available) {
+      await this.wrapped.accept(event);
+      return;
+    }
+    return Promise.reject("fail");
+  }
+}
+
 const db = new Database();
 const cache = new LRUCache(db);
-const apiService = new APIService(cache);
+const availableCache = new AvailableStage(cache);
+const apiService = new APIService(availableCache);
 const timeOut = new Timeout(apiService);
 
 // scenario
@@ -33,7 +49,7 @@ simulation.eventsPer1000Ticks = 1500;
 async function work() {
   const events = await simulation.run(timeOut, 50000);
   console.log("done");
-  stageSummary([db,cache,apiService]);
+  stageSummary([db, cache, apiService]);
   eventSummary(events);
   stats.summary();
 }
@@ -46,7 +62,7 @@ function poll() {
 
   const eventRate = simulation.getArrivalRate();
   const obj: any = {
-    now, eventRate, cacheSize : Object.keys(cache.getStore()).length
+    now, eventRate, cacheSize: Object.keys(cache.getStore()).length
   }
 
   stats.record("poll", obj);
@@ -56,9 +72,20 @@ metronome.setInterval(poll, 1000);
 
 
 
-//function clearCache(){
+// segment 2 (zookeeper shuts down servers)
+const failureSegment2 = 8000;
 function zookeeperTerminated() {
   cache.clear();
+  availableCache.availability = 0;
 }
-//metronome.setTimeout(zookeeperTerminated , 15000)
-metronome.setTimeout( zookeeperTerminated , 8000);
+metronome.setTimeout(zookeeperTerminated, failureSegment2);
+
+
+
+// segment 3 (caches are empty, slow site
+const rebootTime = 5000;
+const segment3Time = failureSegment2 + rebootTime;
+function recover() {
+  availableCache.availability = 1;
+}
+metronome.setTimeout(recover, segment3Time)
