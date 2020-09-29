@@ -1,6 +1,6 @@
 /**
- * An exploration which demonstrates the queue growing and processing halting
- * after traffic exceeds 1900 events / 1000 ticks.
+ * An exploration which demonstrates a website losing capacity to serve
+ * clients after one of the servers fail.
  * 
  * This exploration exists to prove the design of the Database and Build
  * Service appropriately mock the architecture and problems listed in the 
@@ -17,29 +17,25 @@ import {
   import { MySQLCluster, MySQLServer } from "./database"
   import { Balancer } from "./balancer";
 
-  /*  
-     database 1
-     Server 1 (Master) passes running status
-     Server 2 fails running status
-     Server 3 fails running status
-  */  
+  //database 1
+    //Server 1
+    //Server 2
+    //Server 3
   const s1 = new MySQLServer();
   const s2 = new MySQLServer();
   const s3 = new MySQLServer();
   const db1 = new MySQLCluster([s1, s2, s3]);
 
-  /*  
-     database 2
-     Server 4 (Master) fails running status
-     Server 5 fails running status
-     Server 6 passes running status, becomes master by default
-  */
+  //database 2
+    //Server 4
+    //Server 5
+    //Server 6
   const s4 = new MySQLServer();
   const s5 = new MySQLServer();
   const s6 = new MySQLServer();
   const db2 = new MySQLCluster([s4, s5, s6]);
 
-  //balancer
+  // balancer
   const bal = new Balancer([db1, db2]);
  
   // scenario
@@ -48,7 +44,7 @@ import {
   simulation.eventsPer1000Ticks = 1500;
   
   async function work() {
-    const events = await simulation.run(bal, 50000); //destionation, total events sent
+    const events = await simulation.run(bal, 50000); //destination, total events sent.
     console.log("done");
     stats.summary();
     eventSummary(events);
@@ -57,11 +53,10 @@ import {
 
   metronome.setTimeout(breakSQL, 5000);
 
+  // By setting a server's availability to 0, the server cannot service events.
   function breakSQL() {
     s2.availability = 0;
   }
-
-
   
   // stats
   function poll() {
@@ -74,9 +69,8 @@ import {
       s3: s3.availability,
       s4: s4.availability,
       s5: s5.availability,
-      s6: s6.availability,  }); //TODO no queue in event
+      s6: s6.availability,  });
   
     simulation.eventsPer1000Ticks += 100;
   }
   metronome.setInterval(poll, 1000);
-  

@@ -6,7 +6,7 @@ export class APIService extends Stage {
   }
 
   async workOn(event: Event): Promise<void> {
-    // do some work
+    // Do some work
     const latency = normal(8, 2);
     await metronome.wait(latency);
     await this.wrapped.accept(event);

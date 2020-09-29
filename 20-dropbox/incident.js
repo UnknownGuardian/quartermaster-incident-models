@@ -50,9 +50,9 @@ var database_1 = require("./database");
 var balancer_1 = require("./balancer");
 /*
    database 1
-   Server 1 (Master) passes running status
-   Server 2 fails running status
-   Server 3 fails running status
+   Server 1
+   Server 2 fails availability
+   Server 3
 */
 var s1 = new database_1.MySQLServer();
 var s2 = new database_1.MySQLServer();
@@ -60,9 +60,9 @@ var s3 = new database_1.MySQLServer();
 var db1 = new database_1.MySQLCluster([s1, s2, s3]);
 /*
    database 2
-   Server 4 (Master) fails running status
-   Server 5 fails running status
-   Server 6 passes running status, becomes master by default
+   Server 4
+   Server 5
+   Server 6
 */
 var s4 = new database_1.MySQLServer();
 var s5 = new database_1.MySQLServer();
@@ -104,7 +104,7 @@ function poll() {
         s3: s3.availability,
         s4: s4.availability,
         s5: s5.availability,
-        s6: s6.availability }); //TODO no queue in event
+        s6: s6.availability });
     src_1.simulation.eventsPer1000Ticks += 100;
 }
 src_1.metronome.setInterval(poll, 1000);
