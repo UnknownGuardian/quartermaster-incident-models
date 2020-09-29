@@ -16,29 +16,14 @@ import {
   Timeout,
   stageSummary,
   eventSummary,
-  WrappedStage,
-  Event
 } from "../../src";
 import { Database } from "./database"
 import { APIService } from "./api-service"
 
 
-class AvailableStage extends WrappedStage {
-  public availability = 1;
-  async workOn(event: Event): Promise<void> {
-    const available = Math.random() < this.availability;
-    if (available) {
-      await this.wrapped.accept(event);
-      return;
-    }
-    return Promise.reject("fail");
-  }
-}
-
 const db = new Database();
 const cache = new LRUCache(db);
-const availableCache = new AvailableStage(cache);
-const apiService = new APIService(availableCache);
+const apiService = new APIService(cache);
 const timeOut = new Timeout(apiService);
 
 // scenario
@@ -51,7 +36,7 @@ async function work() {
   console.log("done");
   stageSummary([db, cache, apiService]);
   eventSummary(events);
-  stats.summary();
+  stats.summary(true);
 }
 work();
 
@@ -62,7 +47,11 @@ function poll() {
 
   const eventRate = simulation.getArrivalRate();
   const obj: any = {
-    now, eventRate, cacheSize: Object.keys(cache.getStore()).length
+    now,
+    eventRate,
+    cacheSize: Object.keys(cache.getStore()).length,
+    databaseMaxConcurrency: db.inQueue.getNumWorkers(),
+    actualConcurrency: db.concurrent
   }
 
   stats.record("poll", obj);
@@ -76,7 +65,7 @@ metronome.setInterval(poll, 1000);
 const failureSegment2 = 8000;
 function zookeeperTerminated() {
   cache.clear();
-  availableCache.availability = 0;
+  db.inQueue.setNumWorkers(0);
 }
 metronome.setTimeout(zookeeperTerminated, failureSegment2);
 
@@ -86,6 +75,6 @@ metronome.setTimeout(zookeeperTerminated, failureSegment2);
 const rebootTime = 5000;
 const segment3Time = failureSegment2 + rebootTime;
 function recover() {
-  availableCache.availability = 1;
+  db.inQueue.setNumWorkers(300);
 }
 metronome.setTimeout(recover, segment3Time)
