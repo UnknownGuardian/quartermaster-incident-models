@@ -16,6 +16,7 @@ import {
 } from "../../src";
 import { MySQLCluster, MySQLServer } from "./database"
 import { Balancer } from "./balancer";
+import { APIService } from "./api-service";
 
 //database 1
 //Server 1
@@ -35,31 +36,35 @@ const s5 = new MySQLServer();
 const s6 = new MySQLServer();
 const db2 = new MySQLCluster([s4, s5, s6]);
 
-// balancer
+//balancer
 const bal = new Balancer([db1, db2]);
+
+//api service
+const api = new APIService(bal);
 
 // scenario
 simulation.keyspaceMean = 1000;
 simulation.keyspaceStd = 200; // 68% - 1000 +/- 200    97% - 1000 +/- 400     99% 1000 +/- 600 
-simulation.eventsPer1000Ticks = 1500;
+simulation.eventsPer1000Ticks = 1000;
 
+//Initializes the flow of events.
 async function work() {
-  const events = await simulation.run(bal, 50000); //destination, total events sent.
+  const events = await simulation.run(api, 50000); // (destination, total events sent).
   console.log("done");
   stats.summary();
   eventSummary(events);
-  stageSummary([s2])
+  stageSummary([api,bal,s2,s4]) //In output: "Overview of event time spent in stage" and "...behavior in stage", prints info of api, bal, s1, then failing server s2.
 }
 work();
 
 metronome.setTimeout(breakSQL, 5000);
 
-// By setting a server's availability to 0, the server cannot service events.
+//After setting a server's availability to 0, the server cannot service events.
 function breakSQL() {
   s2.availability = 0;
 }
 
-// stats
+//stats
 function poll() {
   const now = metronome.now();
   const eventRate = simulation.getArrivalRate();

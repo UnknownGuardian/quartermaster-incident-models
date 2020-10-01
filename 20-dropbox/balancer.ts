@@ -7,8 +7,8 @@ export class Balancer extends Stage {
   }
 
   async workOn(event: Event): Promise<void> {
-    // Transfer some work
-    const r = Math.floor(Math.random() * this.databases.length) 
+    // Transfer some work to a random server
+    const r = Math.floor(Math.random() * this.databases.length)
     await this.databases[r].accept(event);
   }
 }

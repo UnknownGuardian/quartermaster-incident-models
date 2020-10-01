@@ -8,6 +8,10 @@ https://dropbox.tech/infrastructure/outage-post-mortem
 
 Sitewide outage due to failure of multiple databases, each with a master machine and two replica machines. This resulted from a defect in the upgrade script. 
 
+## Expectations
+
+Expecting near-100% success rate of events being returned by MySQL servers. Instead, some servers (s2) fail and lose availability, resulting in a high rate of event failures.
+
 ## Diagrams
 
 version 1: https://app.lucidchart.com/invitations/accept/320ab037-aca9-4718-93fd-afa543adf205
@@ -39,8 +43,7 @@ Output the events' success and failure rates.
 
 ## Practical Applications
 
-What engineers want to ask the system? Questions?
-How do we prevent this? What are we interested in looking at?
+How do we prevent this?
 What happens if all the database machines shut down?
 How can we shorten our downtime?
 How can we prevent this from happening in the future?
@@ -51,17 +54,6 @@ Possible mitigations to model:
 * Property of production state in a server, which indicates to a function whether or not to pass an update to the server.
 
 ## Notes
-
-Top titles correspond to quartermaster names.
-Middle titles correspond to names/stages listed in the .yaml and .md files.
-
-TODO 
-The model as is does not require replica-master pairing to display a failing server in the database. Should it?
-Replica-master pairs fail, then the other replica gets promoted to master.
-    Do we need to model a failover of replica to master during the incident?
-    Do we need to model a replica master pair resyncing when a replica gets promoted to master?
-* From what I can gather, the pairing only affects backups, not the status of the individual server's ability to service traffic, which is the focus of this model.
-* This could support the mitigation as described in Practical Applications.
 
 9/28/2020
 

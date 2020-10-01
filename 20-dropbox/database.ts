@@ -20,6 +20,6 @@ export class MySQLCluster extends Stage {
 export class MySQLServer extends TimedDependency { //could be master or replica; irrelevant.
   constructor() {
     super();
-    this.inQueue = new FIFOQueue(1, 10); //queue length; ( (Events a worker can run), (number of workers) )
+    this.inQueue = new FIFOQueue(1, 50); //queue length; ( (Events a worker can run), (number of workers) )
   }
 }
