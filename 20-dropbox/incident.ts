@@ -53,16 +53,22 @@ async function work() {
   console.log("done");
   stats.summary();
   eventSummary(events);
-  stageSummary([api,bal,s2,s4]) //In output: "Overview of event time spent in stage" and "...behavior in stage", prints info of api, bal, s1, then failing server s2.
+  stageSummary([api, bal, s2, s4]) //In output: "Overview of event time spent in stage" and "...behavior in stage", prints info of api, bal, s1, then failing server s2.
 }
 work();
 
-metronome.setTimeout(breakSQL, 5000);
 
 //After setting a server's availability to 0, the server cannot service events.
 function breakSQL() {
+  s1.availability = 0;
   s2.availability = 0;
+  s3.availability = 0;
+  s4.availability = 0;
+  s5.availability = 0;
+  s6.availability = 0;
 }
+metronome.setTimeout(breakSQL, 5000);
+
 
 //stats
 function poll() {
