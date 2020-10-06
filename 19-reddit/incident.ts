@@ -33,10 +33,10 @@ simulation.eventsPer1000Ticks = 1500;
 
 async function work() {
   const events = await simulation.run(timeOut, 50000);
-  const seg1Events = events.slice(0,4500)
-  const seg2Events = events.slice(4500, 16500)
-  const seg3Events = events.slice(16500, 24000)
-  
+  const seg1Events = events.slice(0, shutdownTime / 1000 * simulation.eventsPer1000Ticks)
+  const seg2Events = events.slice(shutdownTime / 1000 * simulation.eventsPer1000Ticks, rebootTime / 1000 * simulation.eventsPer1000Ticks)
+  const seg3Events = events.slice(rebootTime / 1000 * simulation.eventsPer1000Ticks)
+
   console.log("done");
   stageSummary([db, cache, apiService]);
   eventSummary(events);
@@ -70,28 +70,22 @@ function poll() {
 metronome.setInterval(poll, 1000);
 
 
-//segment 1 runs normaly before failure
-const normalSegment1 = 3000;
-function normalRun() {
-  //availableCache.availability = 1;
-}
-metronome.setTimeout( normalRun, normalSegment1)
+//segment 1 runs normally tick 0 - 11,000
 
 
-// segment 2 (zookeeper shuts down servers)
-const failureSegment2 = 8000;
+// segment 2 (zookeeper shuts down servers) starts at tick 11,000 - 16,000
+const shutdownTime = 11000;
 function zookeeperTerminated() {
   cache.clear();
   db.inQueue.setNumWorkers(0);
 }
-metronome.setTimeout(zookeeperTerminated, normalSegment1 + failureSegment2);
+metronome.setTimeout(zookeeperTerminated, shutdownTime);
 
 
 
 // segment 3 (caches are empty, slow site
-const rebootTime = 5000;
-const segment3Time = normalSegment1 + failureSegment2 + rebootTime;
+const rebootTime = 16000;
 function recover() {
   db.inQueue.setNumWorkers(300);
 }
-metronome.setTimeout(recover, segment3Time);
+metronome.setTimeout(recover, rebootTime);
