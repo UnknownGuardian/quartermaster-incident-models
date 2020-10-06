@@ -19,17 +19,6 @@ public concurrent = 0;
     const latency = normal(8, 2);
     await metronome.wait(latency + extraLatency);
   
-    if (Math.random() > 0.995){
-
-      if (this.inQueue.getNumWorkers() < 21) {
-        this.inQueue.setNumWorkers(10)
-      } else {
-        this.inQueue.setNumWorkers(this.inQueue.getNumWorkers() - 20);
-        
-      }
-
-    }
-
     
     this.concurrent--;
 

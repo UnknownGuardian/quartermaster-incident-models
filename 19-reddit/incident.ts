@@ -17,7 +17,7 @@ import {
   stageSummary,
   eventSummary,
   WrappedStage,
-  Event
+  Event, normal
 } from "../../src";
 import { Database } from "./database"
 import { APIService } from "./api-service"
@@ -48,9 +48,20 @@ simulation.eventsPer1000Ticks = 1500;
 
 async function work() {
   const events = await simulation.run(timeOut, 50000);
+  const seg1Events = events.slice(0,4500)
+  const seg2Events = events.slice(4500, 16500)
+  const seg3Events = events.slice(16500, 24000)
+  
   console.log("done");
   stageSummary([db, cache, apiService]);
   eventSummary(events);
+  console.log("Segment 1");
+  eventSummary(seg1Events);
+  console.log("Segment 2");
+  eventSummary(seg2Events);
+  console.log("Segment 3");
+  eventSummary(seg3Events);
+
   stats.summary();
 }
 work();
@@ -62,7 +73,7 @@ function poll() {
 
   const eventRate = simulation.getArrivalRate();
   const obj: any = {
-    now, eventRate, cacheSize: Object.keys(cache.getStore()).length
+    now, eventRate, cacheSize: Object.keys(cache.getStore()).length, 
   }
 
   stats.record("poll", obj);
@@ -70,6 +81,12 @@ function poll() {
 metronome.setInterval(poll, 1000);
 
 
+//segment 1 runs normaly before failure
+const normalSegment1 = 3000;
+function normalRun() {
+  //availableCache.availability = 1;
+}
+metronome.setTimeout( normalRun, normalSegment1)
 
 
 // segment 2 (zookeeper shuts down servers)
@@ -78,14 +95,15 @@ function zookeeperTerminated() {
   cache.clear();
   availableCache.availability = 0;
 }
-metronome.setTimeout(zookeeperTerminated, failureSegment2);
+metronome.setTimeout(zookeeperTerminated, normalSegment1 + failureSegment2);
 
 
 
 // segment 3 (caches are empty, slow site
 const rebootTime = 5000;
-const segment3Time = failureSegment2 + rebootTime;
+const segment3Time = normalSegment1 + failureSegment2 + rebootTime;
 function recover() {
   availableCache.availability = 1;
+  //metronome.wait(normal(20,2))
 }
-metronome.setTimeout(recover, segment3Time)
+metronome.setTimeout(recover, segment3Time);
