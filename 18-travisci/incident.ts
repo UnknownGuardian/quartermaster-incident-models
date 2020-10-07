@@ -37,7 +37,7 @@ simulation.eventsPer1000Ticks = 1000;
 
 //Initializes the flow of events.
 async function work() {
-  const events = await simulation.run(vir, 50000); // (destination, total events sent).
+  const events = await simulation.run(vir, 100); // (destination, total events sent).
   console.log("done");
   stats.summary();
   eventSummary(events);
@@ -45,9 +45,19 @@ async function work() {
 }
 work();
 
-metronome.setTimeout(breakVir, 5000);
+//metronome.setTimeout(breakVir, 5000);
 
 //After setting a server's availability to 0, the server cannot service events.
 function breakVir() {
   vir.availability = 0;
 }
+
+function poll() {
+    const now = metronome.now();
+    const eventRate = simulation.getArrivalRate();
+  
+    stats.record("poll", {
+      now, eventRate,
+    });
+  }
+  metronome.setInterval(poll, 1000);
