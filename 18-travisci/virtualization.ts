@@ -1,14 +1,14 @@
 import { Stage, Event, metronome, normal, TimedDependency, FIFOQueue } from "../../src";
-import {BuildService} from "./build-service";
 
 export class VirtualStage extends TimedDependency {
     constructor(protected wrapped: Stage) {
         super();
-
+        
     }
 
     async workOn(event: Event) {
-        await this.Build(event);
+        try {await this.Build(event);}
+        catch {console.log("Error in Build");}
         await this.Run(event);
         await this.Cleanup(event);
     }
