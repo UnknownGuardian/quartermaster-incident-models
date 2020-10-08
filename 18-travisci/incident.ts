@@ -18,38 +18,43 @@ import {
     simulation,
     stats,
     eventSummary, 
-    stageSummary
+    stageSummary,
+    Timeout
 } from "../../src";
 import { BuildService } from "./build-service";
-import { VirtualStage } from "./virtualization";
+import { Virtualization } from "./virtualization";
 
 // initialize build-service
-
- const build = new BuildService();
+const build = new BuildService();
 
 // pass build-service as a parameter into virtualization
- const vir = new VirtualStage(build);
+const vir = new Virtualization(build);
+
+// Gives timeout to end simulation after a period of time.
+const timeout = new Timeout(vir);
 
 // scenario
 simulation.keyspaceMean = 1000;
 simulation.keyspaceStd = 200; // 68% - 1000 +/- 200    97% - 1000 +/- 400     99% 1000 +/- 600 
 simulation.eventsPer1000Ticks = 1000;
+timeout.timeout = 10000; // times out after x ticks.
 
 //Initializes the flow of events.
 async function work() {
-  const events = await simulation.run(vir, 100); // (destination, total events sent).
+  const events = await simulation.run(timeout, 5000); // (destination, total events sent).
   console.log("done");
   stats.summary();
   eventSummary(events);
-  stageSummary([vir]) //In output: "Overview of event time spent in stage" and "...behavior in stage", prints info of vir.
+  stageSummary([timeout, vir]) //In output: "Overview of event time spent in stage" and "...behavior in stage", prints info of vir.
+  stats.summary;
 }
 work();
 
-//metronome.setTimeout(breakVir, 5000);
+metronome.setTimeout(breakVir, 3000); //breaks authenticator in Virtualization after 1000 ticks
 
-//After setting a server's availability to 0, the server cannot service events.
+//After setting virtual's que authentication to fail, the cleanup cannot service events.
 function breakVir() {
-  vir.availability = 0;
+  vir.queAuthenticator = false;
 }
 
 function poll() {
