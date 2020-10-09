@@ -19,7 +19,8 @@ import {
     stats,
     eventSummary, 
     stageSummary,
-    Timeout
+    Timeout,
+    TimeStats
 } from "../../src";
 import { BuildService } from "./build-service";
 import { Virtualization } from "./virtualization";
@@ -37,16 +38,20 @@ const timeout = new Timeout(vir);
 simulation.keyspaceMean = 1000;
 simulation.keyspaceStd = 200; // 68% - 1000 +/- 200    97% - 1000 +/- 400     99% 1000 +/- 600 
 simulation.eventsPer1000Ticks = 1000;
-timeout.timeout = 10000; // times out after x ticks.
+//timeout.timeout = 20000; // times out after x ticks.
 
 //Initializes the flow of events.
 async function work() {
-  const events = await simulation.run(timeout, 5000); // (destination, total events sent).
+  const events = await simulation.run(vir, 5000); // (destination, total events sent).
   console.log("done");
-  stats.summary();
+  //stats.summary();
   eventSummary(events);
-  stageSummary([timeout, vir]) //In output: "Overview of event time spent in stage" and "...behavior in stage", prints info of vir.
-  stats.summary;
+  stageSummary([/*timeout, */vir, build]) //In output: "Overview of event time spent in stage" and "...behavior in stage", prints info of vir.
+  stats.summary();
+  const times = events.map(e => e.stageTimes);
+  console.log(times[0]);
+  metronome.stop(true); //this will stop the timer.
+  //metronome.debug(true) //will show when functions will execute 
 }
 work();
 
@@ -60,9 +65,10 @@ function breakVir() {
 function poll() {
     const now = metronome.now();
     const eventRate = simulation.getArrivalRate();
+    //const eventTime = TimeStats.fromStage(vir); //prints string of TimeStats
   
     stats.record("poll", {
-      now, eventRate,
+      now, eventRate, //eventTime
     });
   }
   metronome.setInterval(poll, 1000);
