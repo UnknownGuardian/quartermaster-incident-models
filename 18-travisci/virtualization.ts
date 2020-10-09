@@ -35,9 +35,11 @@ export class Virtualization extends Stage {
         await metronome.wait(latency);
       }
       else {
-        await metronome.wait(Infinity);
+        //await metronome.wait(Infinity);
+        await new Promise((resolve, reject) => {});
       }
-
+      
+      //await new Promise(() => {});
       // sometimes don't return from this function. (You can probably do this by setting caling await.metronome.wait(Infinity)
     }
 }
