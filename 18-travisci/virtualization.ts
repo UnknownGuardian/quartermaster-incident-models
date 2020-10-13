@@ -1,88 +1,42 @@
 import { Stage, Event, metronome, normal, standardNormal, TimedDependency, FIFOQueue } from "../../src";
 
 export class Virtualization extends Stage {
-    public queAuthenticator: boolean;
-    constructor(protected wrapped: Stage) {
-      super();
-      this.inQueue = new FIFOQueue(Infinity, 220); //queue length ( (Events a worker can run), (number of workers) )
-      this.queAuthenticator = true;
-    }
+  private resourcesUsed: number = 0;
+  private maxResources: number = 6000;
+  public janitorProcessWorking: boolean;
+  constructor() {
+    super();
+    this.inQueue = new FIFOQueue(Infinity, 220); //queue length ( (Events a worker can run), (number of workers) )
+    this.janitorProcessWorking = true;
+  }
 
-    async workOn(event: Event): Promise<void> {
-      await this.build(event);
-      await this.run(event);
-      await this.cleanup(event);
-    }
+  async workOn(event: Event): Promise<void> {
+    await this.createVM(event);
+    await this.run(event);
+    await this.cleanup(event);
+  }
 
-    async build(event: Event): Promise<void>  {
-      const latency = normal(10, 2);
-      console.log("BUILD");
-      await metronome.wait(latency);
-    }
+  async createVM(event: Event): Promise<void> {
+    // try to create a new VM if there is resources
+    // otherwise fail immediately
+    if (this.resourcesUsed > this.maxResources)
+      throw "fail";
 
-    async run(event: Event): Promise<void>  {
-      const latency = normal(10, 2);
-      console.log("RUN");
-      await metronome.wait(latency);
-    }
+    this.resourcesUsed++;
+  }
 
-    async cleanup(event: Event): Promise<void>  {
-      const latency = normal(10, 2);
-      console.log("CLEANUP " + this.queAuthenticator);
-      //await metronome.wait(latency);
-      
-      if (this.queAuthenticator == true) {
-        await metronome.wait(latency);
-      }
-      else {
-        //await metronome.wait(Infinity);
-        await new Promise((resolve, reject) => {});
-      }
-      
-      //await new Promise(() => {});
-      // sometimes don't return from this function. (You can probably do this by setting caling await.metronome.wait(Infinity)
+  async run(event: Event): Promise<void> {
+    const latency = normal(10, 2);
+    await metronome.wait(latency);
+  }
+
+  async cleanup(event: Event): Promise<void> {
+
+    // if old configuration, always deallocate resources
+    // if new configuration never deallocate resources
+    if (this.janitorProcessWorking) {
+      this.resourcesUsed--;
     }
+  }
 }
 
-
-/*
-export class VirtualStage extends TimedDependency {
-    constructor(protected wrapped: Stage) {
-        super();
-
-    }
-
-    async workOn(event: Event) {
-        try {await this.build(event);}
-        catch {console.log("Error in workOn");}
-        await this.run(event);
-        await this.cleanup(event);
-        //await this.Build(this.Run((this.Cleanup(event))));
-    }
-
-    async build(event: Event) {
-        console.log("BUILD");
-        const latency = normal(8, 2); //latency between 6 and 10
-        await metronome.wait(latency);
-        this.inQueue = new FIFOQueue(1, 50); //queue length; ( (Events a worker can run), (number of workers) )
-        await this.wrapped.accept(event);
-    } // Build
-
-    async run(event: Event) {
-        console.log("RUN");
-        const latency = normal(8, 2); //latency between 6 and 10
-        await metronome.wait(latency);
-        this.inQueue = new FIFOQueue(1, 50); //queue length; ( (Events a worker can run), (number of workers) )
-        await this.wrapped.accept(event);
-    } // Run
-
-    async cleanup(event: Event) {
-        console.log("CLEANUP");
-        const latency = normal(8, 2); //latency between 6 and 10
-        await metronome.wait(latency);
-        this.inQueue = new FIFOQueue(1, 50); //queue length; ( (Events a worker can run), (number of workers) )
-        await this.wrapped.accept(event);
-    } // Cleanup
-
-}
-*/
