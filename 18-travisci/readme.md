@@ -6,13 +6,12 @@ https://www.traviscistatus.com/incidents/khzk8bg4p9sy
 
 ## Expectations
 
-Events passed through the build process in the virtualization layer to the server will throw a failure upon arrival. The cleanup function in the virtual layer will fail to remove VMs from the server because it assumes capacity was never exceeded. Server workers will be overloaded by the demand of continuously generated VMs onto the server.
+Events passed to the createVM process in the virtualization layer will fail upon arrival. The cleanup function in the virtual layer will fail to remove VMs from the server because it assumes capacity was never exceeded. Workers for the createVM function will be overloaded by the demand of continuously generated VMs, and will fail events. The service will attempt to requeue the failed events.
 
 ## Diagram
 
-https://lucid.app/invitations/accept/604925ca-ca7b-40ab-a211-13f4af93c5cd
-
-
+* version 1: https://lucid.app/invitations/accept/604925ca-ca7b-40ab-a211-13f4af93c5cd
+* version 2: https://lucid.app/invitations/accept/fc2f4a28-b200-4c01-a5ca-e05e4422f132
 
 ## Notes
 
