@@ -1,6 +1,5 @@
-import { Event, metronome, normal, FIFOQueue, TimedDependency, Stage, WrappedStage } from "../../src";
+import { Event, FIFOQueue, Stage, WrappedStage } from "../../src";
 
-// TODO: Correctly instantiate BuildService and IntakeQueue inside Intake. Fix so that build awaits queue and figure out how to pass events to this stage chain in workOn.
 export class Intake extends Stage {
   public queue = new IntakeQueue(this.wrapped);
   public build = new BuildService(this.queue);
@@ -8,7 +7,7 @@ export class Intake extends Stage {
     super();
   }
   
-  async workOn(event: Event): Promise<void> { // TODO add helper variables?
+  async workOn(event: Event): Promise<void> {
     // Do some work
     //const queue = new IntakeQueue(event);
     //await this.wrapped.accept(this.build);

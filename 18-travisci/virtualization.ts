@@ -1,4 +1,4 @@
-import { Stage, Event, metronome, normal, standardNormal, TimedDependency, FIFOQueue } from "../../src";
+import { Stage, metronome, normal, FIFOQueue } from "../../src";
 
 export class Virtualization extends Stage {
   private resourcesUsed: number = 0;
@@ -10,13 +10,13 @@ export class Virtualization extends Stage {
     this.janitorProcessWorking = true;
   }
 
-  async workOn(event: Event): Promise<void> {
-    await this.createVM(event);
-    await this.run(event);
-    await this.cleanup(event);
+  async workOn(): Promise<void> {
+    await this.createVM();
+    await this.run();
+    await this.cleanup();
   }
 
-  async createVM(event: Event): Promise<void> {
+  async createVM(): Promise<void> {
     // try to create a new VM if there is resources
     // otherwise fail immediately
     if (this.resourcesUsed > this.maxResources)
@@ -25,12 +25,12 @@ export class Virtualization extends Stage {
     this.resourcesUsed++;
   }
 
-  async run(event: Event): Promise<void> {
+  async run(): Promise<void> {
     const latency = normal(10, 2);
     await metronome.wait(latency);
   }
 
-  async cleanup(event: Event): Promise<void> {
+  async cleanup(): Promise<void> {
     // if old configuration, always deallocate resources
     // if new configuration never deallocate resources
     if (this.janitorProcessWorking) {

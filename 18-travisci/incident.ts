@@ -11,17 +11,13 @@
 
 
 import {
-  Stage,
-  Event,
   metronome,
-  normal,
   simulation,
   stats,
   eventSummary,
   stageSummary,
   Timeout,
   Retry,
-  TimeStats
 } from "../../src";
 import { Intake } from "./intake";
 import { Virtualization } from "./virtualization";
@@ -46,7 +42,7 @@ simulation.eventsPer1000Ticks = 1000;
 
 // Initializes the flow of events.
 async function work() {
-  const events = await simulation.run(intake, 40000); // (destination, total events sent).
+  const events = await simulation.run(intake, 30000); // (destination, total events sent).
   console.log("done");
   //stats.summary();
   eventSummary(events);
