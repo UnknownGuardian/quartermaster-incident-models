@@ -24,6 +24,7 @@ import {
   Retry
 } from "../../src";
 import { Intake } from "./intake";
+import { Retry } from "./retry"
 import { Virtualization } from "./virtualization";
 
 // Drives the events' failures.
