@@ -20,11 +20,10 @@ import {
   eventSummary,
   stageSummary,
   Timeout,
-  TimeStats,
-  Retry
+  Retry,
+  TimeStats
 } from "../../src";
 import { Intake } from "./intake";
-import { Retry } from "./retry"
 import { Virtualization } from "./virtualization";
 
 // Drives the events' failures.
@@ -32,14 +31,13 @@ const vir = new Virtualization();
 
 // Gives timeout to end simulation after a period of time.
 const timeout = new Timeout(vir);
+timeout.timeout = 100; // times out after x ticks.
 
 // Wraps timeout stage and resubmits events upon failure.
 const retry = new Retry(timeout);
 
 // Sends events through a queue.
 const intake = new Intake(retry);
-
-timeout.timeout = 20000; // times out after x ticks.
 
 // scenario
 simulation.keyspaceMean = 1000;

@@ -19,9 +19,9 @@ export class Virtualization extends Stage {
   async createVM(event: Event): Promise<void> {
     // try to create a new VM if there is resources
     // otherwise fail immediately
-    if (this.resourcesUsed > this.maxResources) {
+    if (this.resourcesUsed > this.maxResources)
       throw "fail";
-    }
+
     this.resourcesUsed++;
   }
 
