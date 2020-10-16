@@ -18,6 +18,7 @@ import {
   stageSummary,
   Timeout,
   Retry,
+  FIFOQueue
 } from "../../src";
 import { Intake } from "./intake";
 import { Virtualization } from "./virtualization";
@@ -27,7 +28,7 @@ const vir = new Virtualization();
 
 // Gives timeout to end simulation after a period of time.
 const timeout = new Timeout(vir);
-timeout.timeout = 100; // times out after x ticks.
+timeout.timeout = 150000; // times out after x ticks.
 
 // Wraps timeout stage and resubmits events upon failure.
 const retry = new Retry(timeout);
@@ -56,7 +57,7 @@ work();
 
 // Breaks cleanup function in Virtualization after x ticks
 // After setting virtual's cleanupVM to fail, the cleanup will cause resourcesUsed to accumulate.
-metronome.setTimeout(breakVir, 5000); 
+metronome.setTimeout(breakVir, 10000); 
 
 function breakVir() {
   vir.janitorProcessWorking = false;
@@ -65,10 +66,11 @@ function breakVir() {
 function poll() {
   const now = metronome.now();
   const eventRate = simulation.getArrivalRate();
+  const intakeRate = (intake.inQueue as FIFOQueue).length();
   //const eventTime = TimeStats.fromStage(vir); //prints string of TimeStats
 
   stats.record("poll", {
-    now, eventRate, //eventTime
+    now, eventRate, intakeRate //eventTime
   });
 }
 metronome.setInterval(poll, 1000);

@@ -26,7 +26,7 @@ export class Virtualization extends Stage {
   }
 
   async run(): Promise<void> {
-    const latency = normal(10, 2);
+    const latency = normal(10000, 1000);
     await metronome.wait(latency);
   }
 
