@@ -6,17 +6,29 @@ https://status.cloud.google.com/incident/cloud-networking/19009
 
 ## Summary
 
-Sitewide outage due to failure of multiple databases, each with a master machine and two replica machines. This resulted from a defect in the upgrade script.
+Packet loss, client request timeouts, and increased latency due to a severed connection to some servers caused by a defect in an upgrade script. The defect allowed it to run on active servers which continued to receive traffic during the update.
 
 ## Expectations
 
-Expecting near-100% success rate of events being returned by MySQL servers. Instead, some servers (s2) fail and lose availability, resulting in a high rate of event failures.
-
-- Availability for all servers is 0.9995 until tick 5000 when they drop to 0
+Expecting near-100% success rate of events being returned by servers. Instead, some servers fail, causing an increased demand on other servers. This results in event loss, event timeouts, and higher latency.
 
 ## Diagrams
 TODO change link to view only
 version 1: https://lucid.app/invitations/accept/6b1c2caf-45cf-48be-9918-f7218a7547fb
+
+## Differences against 20-dropbox
+
+### Architectural
+
+* Add a timeout stage inside one either api-service or balancer
+* Rename SendTrafficTo to NetworkControl
+
+### Failures
+
+Not total failure only.
+* Event latency due to network congestion
+* Event timeouts
+* Dropped packets due to severed connection to servers
 
 ## Notes
 
