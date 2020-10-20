@@ -19,7 +19,7 @@ export class Virtualization extends Stage {
   async createVM(): Promise<void> {
     // try to create a new VM if there is resources
     // otherwise fail immediately
-    if (this.resourcesUsed > this.maxResources)
+    if (this.resourcesUsed >= this.maxResources)
       throw "fail";
 
     this.resourcesUsed++;
@@ -36,5 +36,9 @@ export class Virtualization extends Stage {
     if (this.janitorProcessWorking) {
       this.resourcesUsed--;
     }
+  }
+
+  public getResourceUtilization() {
+    return this.resourcesUsed / this.maxResources;
   }
 }

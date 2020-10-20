@@ -45,19 +45,16 @@ simulation.eventsPer1000Ticks = 1000;
 async function work() {
   const events = await simulation.run(intake, 30000); // (destination, total events sent).
   console.log("done");
-  //stats.summary();
+
   eventSummary(events);
   stageSummary([intake, retry, timeout, vir]);
-  stats.summary();
-  const times = events.map(e => e.stageTimes);
-  console.log(times[0]);
-
+  stats.summary(true);
 }
 work();
 
 // Breaks cleanup function in Virtualization after x ticks
 // After setting virtual's cleanupVM to fail, the cleanup will cause resourcesUsed to accumulate.
-metronome.setTimeout(breakVir, 10000); 
+metronome.setTimeout(breakVir, 10000);
 
 function breakVir() {
   vir.janitorProcessWorking = false;
@@ -66,11 +63,11 @@ function breakVir() {
 function poll() {
   const now = metronome.now();
   const eventRate = simulation.getArrivalRate();
-  const intakeRate = (intake.inQueue as FIFOQueue).length();
-  //const eventTime = TimeStats.fromStage(vir); //prints string of TimeStats
+  const queueLength = (intake.inQueue as FIFOQueue).length();
+  const availableResources = vir.getResourceUtilization();
 
   stats.record("poll", {
-    now, eventRate, intakeRate //eventTime
+    now, eventRate, queueLength, availableResources, janitorProcessWorking: vir.janitorProcessWorking
   });
 }
 metronome.setInterval(poll, 1000);
