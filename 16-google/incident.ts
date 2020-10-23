@@ -12,11 +12,13 @@ import {
   metronome,
   simulation,
   stats,
-  eventSummary, stageSummary
+  eventSummary, 
+  stageSummary,
+  Timeout
 } from "../../src";
 import { Cluster, Server } from "./database"
 import { Balancer } from "./balancer";
-import { APIService } from "./api-service";
+import { Iptables } from "./ip-tables";
 
 //database 1
 //Server 1
@@ -39,8 +41,12 @@ const db2 = new Cluster([s4, s5, s6]);
 //balancer
 const bal = new Balancer([db1, db2]);
 
-//api service
-const api = new APIService(bal);
+//ip-tables
+const ip = new Iptables(bal);
+
+//timeout
+const timeout = new Timeout(ip);
+timeout.timeout = 172; // events time out after x ticks. X = 75% of mean cumulative distribution  //TODO consider removing this if timeout errors are not modeled in the incident.
 
 // scenario
 simulation.keyspaceMean = 1000;
@@ -49,26 +55,32 @@ simulation.eventsPer1000Ticks = 1000;
 
 //Initializes the flow of events.
 async function work() {
-  const events = await simulation.run(api, 50000); // (destination, total events sent).
+  const events = await simulation.run(timeout, 50000); // (destination, total events sent).
   console.log("done");
   stats.summary();
   eventSummary(events);
-  stageSummary([api, bal, s2, s4]) //In output: "Overview of event time spent in stage" and "...behavior in stage", prints info of api, bal, s1, then failing server s2.
+  stageSummary([timeout, ip, bal, s1, s2, s3, s4, s5, s6]) //In output: "Overview of event time spent in stage" and "...behavior in stage", prints info of api, bal, s1, then failing server s2.
 }
-work();
-
 
 //After setting a server's availability to 0, the server cannot service events.
 function breakServer() {
   s1.availability = 0;
   s2.availability = 0;
   s3.availability = 0;
-  s4.availability = 0;
-  s5.availability = 0;
-  s6.availability = 0;
+  //s4.availability = 0;
+  //s5.availability = 0;
+  //s6.availability = 0;
 }
-metronome.setTimeout(breakServer, 5000);
 
+//Changes availability of ip-tables stage
+function puppetConfigChange() {
+    ip.allowInboudTraffic = false;
+}
+
+//Reverts availability of ip-tables stage
+function revertPuppetConfigChange() {
+    ip.allowInboudTraffic = true;
+}
 
 //stats
 function poll() {
@@ -77,12 +89,27 @@ function poll() {
 
   stats.record("poll", {
     now, eventRate,
+    ip: ip.blockedTrafficCount, // Sum of events ip-tables has failed.
     s1: s1.availability,
     s2: s2.availability,
     s3: s3.availability,
     s4: s4.availability,
     s5: s5.availability,
-    s6: s6.availability,
+    s6: s6.availability
   });
 }
+
+work();
 metronome.setInterval(poll, 1000);
+metronome.setTimeout(breakServer, 5000); // if 1000 events rate == 1000 ticks, then x events should return success before server breaks at the x time passed here as 2nd parameter.
+metronome.setTimeout(puppetConfigChange, 15000);
+
+//TODO fix readme
+//TODO edit incident.ts heading
+//TODO double check the incident report for architecture and failure accuracy.
+    // replace breakServer with queue capacity? 
+    // events in system - events worked on = concurrent
+    // Queue time in balancer.
+// possible extras?
+  // mimic BGP balancing packet transfer between databases
+//  

@@ -7,12 +7,12 @@ export class Cluster extends Stage {
 
   // Serves the request
   async workOn(event: Event): Promise<void> {
-    const instance = this.sendTrafficTo(event);
+    const instance = this.sendTrafficTo();
     await instance.accept(event);
   }
 
   // Choose a cluster to serve the request
-  private sendTrafficTo(event: Event): Server {
+  private sendTrafficTo(): Server {
     return this.cluster[Math.floor(Math.random() * this.cluster.length)];
   }
 }
