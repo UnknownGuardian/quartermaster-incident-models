@@ -1,10 +1,11 @@
-import { Stage, Event, TimedDependency, FIFOQueue, } from "../../src";
+import { Event, TimedDependency, FIFOQueue } from "../../src";
 import { Cluster } from "./database"
 
 export class Balancer extends TimedDependency {
+  public queueCapacity: number = 50;
   constructor(protected databases: Cluster[]) {
     super();
-    this.inQueue = new FIFOQueue(1, 50); //queue length; ( (Events a worker can run), (number of workers) )
+    this.inQueue = new FIFOQueue(1, this.queueCapacity); //queue length; ( (Events a worker can run), (number of workers) )
   }
 
   async workOn(event: Event): Promise<void> {

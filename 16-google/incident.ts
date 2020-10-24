@@ -1,10 +1,11 @@
 /**
- * An exploration which demonstrates a website losing capacity to serve
- * clients after one of the servers fail.
+ * An exploration which demonstrates packet loss, higher latency, and network
+ * congestion after clusters and their network control planes are de-scheduled 
+ * and cluster management software are descheduled shortly afterward.
  * 
- * This exploration exists to prove the design of the Database and Build
- * Service appropriately mock the architecture and problems listed in the 
- * incident report.
+ * This exploration exists to prove the design of the Database, Build
+ * Service, and ip-tables appropriately mock the architecture and problems 
+ * listed in the incident report.
  * 
  */
 
@@ -46,7 +47,7 @@ const ip = new Iptables(bal);
 
 //timeout
 const timeout = new Timeout(ip);
-timeout.timeout = 172; // events time out after x ticks. X = 75% of mean cumulative distribution  //TODO consider removing this if timeout errors are not modeled in the incident.
+timeout.timeout = 172; // events time out after x ticks. x = 75% of mean cumulative distribution
 
 // scenario
 simulation.keyspaceMean = 1000;
@@ -82,6 +83,11 @@ function revertPuppetConfigChange() {
     ip.allowInboudTraffic = true;
 }
 
+//Initiates network congestion in the load balancer, i.e. cluster management software.
+function balancerCapacityChange() {
+    bal.queueCapacity = 5;
+}
+
 //stats
 function poll() {
   const now = metronome.now();
@@ -101,15 +107,12 @@ function poll() {
 
 work();
 metronome.setInterval(poll, 1000);
-metronome.setTimeout(breakServer, 5000); // if 1000 events rate == 1000 ticks, then x events should return success before server breaks at the x time passed here as 2nd parameter.
-metronome.setTimeout(puppetConfigChange, 15000);
+metronome.setTimeout(breakServer, 5000); // represents logical cluster de-scheduling
+metronome.setTimeout(balancerCapacityChange, 10000); // represents queue backup
+metronome.setTimeout(puppetConfigChange, 15000); //represents cluster management software descheduling
 
-//TODO fix readme
-//TODO edit incident.ts heading
 //TODO double check the incident report for architecture and failure accuracy.
     // replace breakServer with queue capacity? 
     // events in system - events worked on = concurrent
-    // Queue time in balancer.
-// possible extras?
-  // mimic BGP balancing packet transfer between databases
-//  
+    // possible extras?
+      // mimic BGP balancing packet transfer between databases
