@@ -18,8 +18,9 @@ export class Cluster extends Stage {
 }
 
 export class Server extends TimedDependency { //could be master or replica; irrelevant.
+  public queueCapacity: number = 50;
   constructor() {
     super();
-    this.inQueue = new FIFOQueue(1, 50); //queue length; ( (Events a worker can run), (number of workers) )
+    this.inQueue = new FIFOQueue(1, this.queueCapacity); //queue length; ( (Events a worker can run), (number of workers) )
   }
 }
