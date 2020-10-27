@@ -12,12 +12,14 @@ import {
   metronome,
   simulation,
   stats,
-  eventSummary, 
+  eventSummary,
   stageSummary,
-  Timeout
+  Timeout,
+  eventCompare
 } from "../../src";
 import { Cluster, Server } from "./database"
 import { Balancer } from "./balancer";
+import { Wire } from "./wire";
 
 //database 1
 //Server 1
@@ -40,41 +42,44 @@ const db2 = new Cluster([s4, s5, s6]);
 //balancer
 const bal = new Balancer([db1, db2]);
 
+
+const wire = new Wire(bal)
+
 //timeout
-const timeout = new Timeout(bal);
+const timeout = new Timeout(wire);
 timeout.timeout = 172; // events time out after x ticks. x = 75% of mean cumulative distribution
 
 // scenario
 simulation.keyspaceMean = 1000;
 simulation.keyspaceStd = 200;
-simulation.eventsPer1000Ticks = 1000;
+simulation.eventsPer1000Ticks = 5000;
 
 //Initializes the flow of events.
 async function work() {
-  const events = await simulation.run(timeout, 50000); // (destination, total events sent).
+  const events = await simulation.run(timeout, 100000); // (destination, total events sent).
   console.log("done");
   stats.summary();
-  eventSummary(events);
+  //eventSummary(events);
+  const preIncidentEvents = events.slice(0, 1000 * 5)
+  const postIncidentEvents = events.slice(1000 * 5);
+
+  console.log("Pre")
+  eventSummary(preIncidentEvents);
+  console.log("Post")
+  eventSummary(postIncidentEvents);
+  console.log("Compare")
+  eventCompare(preIncidentEvents, postIncidentEvents);
   stageSummary([timeout, bal, s1, s2, s3, s4, s5, s6]) //In output: "Overview of event time spent in stage" and "...behavior in stage", prints info of api, bal, s1, then failing server s2.
 }
 
 //After setting a server's availability to 0, the server cannot service events.
 function breakServer() {
-  //s1.queueCapacity *= .23;
-  //s2.queueCapacity *= .23;
-  //s3.queueCapacity *= .23;
-  
-  s1.availability *= 0.50;
-  s2.availability *= 0.50;
-  s3.availability *= 0.50;
-  s4.availability *= 0.50;
-  s5.availability *= 0.50;
-  s6.availability *= 0.50;
+  wire.percentDropPackets = 0.1;
 }
 
 //Initiates network congestion in the load balancer, i.e. cluster management software.
 function balancerCapacityChange() {
-    bal.queueCapacity = 5;
+  bal.queueCapacity = 5;
 }
 
 //stats
@@ -84,13 +89,10 @@ function poll() {
 
   stats.record("poll", {
     now, eventRate,
-    bal: bal.queueCapacity,
-    s1: s1.availability,
-    s2: s2.availability,
-    s3: s3.availability,
-    s4: s4.availability,
-    s5: s5.availability,
-    s6: s6.availability
+    packetDrop: wire.percentDropPackets,
+    networkInbound: wire.getIncomingTrafficRate(),
+    networkOutbound: wire.getOutgoingTrafficRate(),
+    isNetworkCongested: wire.getOutgoingTrafficRate() < wire.getIncomingTrafficRate() * 0.98
   });
 }
 
