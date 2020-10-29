@@ -21,6 +21,7 @@ import {
 import { Cluster, Server } from "./database"
 import { Balancer } from "./balancer";
 import { ClusterManagementSoftware } from "./cluster-management-software";
+import { BGP } from "./bgp";
 
 //Cluster 1
 //Server 1
@@ -47,12 +48,14 @@ const cms2 = new ClusterManagementSoftware(db2);
 //Timeout 1 and 2
 const timeout1 = new Timeout(cms1);
 const timeout2 = new Timeout(cms2);
-
-//Bal
-const bal = new Balancer ([timeout1, timeout2]);
-
 timeout1.timeout = 172;
 timeout2.timeout = 172;
+
+//BGP
+const bgp = new BGP();
+
+//Bal
+const bal = new Balancer ([timeout1, timeout2], bgp);
 
 //Scenario
 simulation.keyspaceMean = 1000;
@@ -74,13 +77,23 @@ async function work() {
   eventSummary(postIncidentEvents);
   console.log("Compare");
   eventCompare(preIncidentEvents, postIncidentEvents);
-  stageSummary([bal, timeout1, timeout2, cms1, cms2, s1, s2, s3, s4, s5, s6]);
+  stageSummary([bal, bgp, timeout1, timeout2, cms1, cms2, s1, s2, s3, s4, s5, s6]);
 }
 
-//ets rate of 50% packet loss in the cms stages
+//Sets rate of 50% packet loss in the cms stages
 function breakcms() {
   cms1.percentDropPackets = 0.5; 
   cms2.percentDropPackets = 0.5; 
+}
+
+//Resets balancer queue
+function resetBalancer() {
+  bal.queue1 = 0;
+  bal.queue2 = 0;
+}
+
+function breakBGP() {
+  bgp.BGPWorking = false;
 }
 
 //Stats
@@ -90,18 +103,21 @@ function poll() {
 
   stats.record("poll", {
     now, eventRate,
+    bgpTotal: bgp.BGPTotal,
     cms1PacketDrop: cms1.percentDropPackets,
-    cms1NetworkInbound: cms1.getIncomingTrafficRate(),
-    cms1NetworkOutbound: cms1.getOutgoingTrafficRate(),
-    cms1IsNetworkCongested: cms1.getOutgoingTrafficRate() < cms1.getIncomingTrafficRate() * 0.98,
+    cms1Inbound: cms1.getIncomingTrafficRate(),
+    cms1Outbound: cms1.getOutgoingTrafficRate(),
+    cms1IsCongested: cms1.getOutgoingTrafficRate() < cms1.getIncomingTrafficRate() * 0.98,
     
     cms2PacketDrop: cms2.percentDropPackets,
-    cms2NetworkInbound: cms2.getIncomingTrafficRate(),
-    cms2NetworkOutbound: cms2.getOutgoingTrafficRate(),
-    cms2IsNetworkCongested: cms2.getOutgoingTrafficRate() < cms2.getIncomingTrafficRate() * 0.98
+    cms2Inbound: cms2.getIncomingTrafficRate(),
+    cms2Outbound: cms2.getOutgoingTrafficRate(),
+    cms2IsCongested: cms2.getOutgoingTrafficRate() < cms2.getIncomingTrafficRate() * 0.98
   });
 }
 
 work();
 metronome.setInterval(poll, 1000);
+metronome.setInterval(resetBalancer, 1000);
 metronome.setTimeout(breakcms, 5000); // represents logical cluster de-scheduling, leading to event timeouts
+metronome.setTimeout(breakBGP, 10000); // represents BGP packet rerouting breaking
