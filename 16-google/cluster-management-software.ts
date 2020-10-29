@@ -35,12 +35,12 @@ export class ClusterManagementSoftware extends WrappedStage {
     this.outboundCounter = 0;
   }
 
-  // events received / 1000 ticks
+  // events cms received / 1000 ticks
   public getIncomingTrafficRate(): number {
     return this.lastInboundSampled * 1000 / this.interval;
   }
 
-  // events that we finished / 1000 ticks
+  // events that finished / 1000 ticks
   public getOutgoingTrafficRate(): number {
     return this.lastOutboundSampled * 1000 / this.interval;
   }

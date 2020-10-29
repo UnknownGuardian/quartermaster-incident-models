@@ -1,7 +1,6 @@
 /**
  * An exploration which demonstrates packet loss and network congestion
- * after clusters, their network control planes, and their cluster 
- * management software are de-scheduled.
+ * after clusters' cluster management software are de-scheduled.
  * 
  * This exploration exists to prove the design of the Database, Balancer,
  * and Cluster Management Software stages appropriately mock the 
@@ -23,7 +22,7 @@ import { Cluster, Server } from "./database"
 import { Balancer } from "./balancer";
 import { ClusterManagementSoftware } from "./cluster-management-software";
 
-//database 1
+//Cluster 1
 //Server 1
 //Server 2
 //Server 3
@@ -32,7 +31,7 @@ const s2 = new Server();
 const s3 = new Server();
 const db1 = new Cluster([s1, s2, s3]);
 
-//database 2
+//Cluster 2
 //Server 4
 //Server 5
 //Server 6
@@ -41,24 +40,28 @@ const s5 = new Server();
 const s6 = new Server();
 const db2 = new Cluster([s4, s5, s6]);
 
-//balancer
-const bal = new Balancer([db1, db2]);
+//Cluster Management Software 1 and 2
+const cms1 = new ClusterManagementSoftware(db1);
+const cms2 = new ClusterManagementSoftware(db2);
 
-//cms
-const cms = new ClusterManagementSoftware(bal);
+//Timeout 1 and 2
+const timeout1 = new Timeout(cms1);
+const timeout2 = new Timeout(cms2);
 
-//timeout
-const timeout = new Timeout(cms);
-timeout.timeout = 172; // events time out after x ticks. x = 75% of mean cumulative distribution
+//Bal
+const bal = new Balancer ([timeout1, timeout2]);
 
-// scenario
+timeout1.timeout = 172;
+timeout2.timeout = 172;
+
+//Scenario
 simulation.keyspaceMean = 1000;
 simulation.keyspaceStd = 200;
 simulation.eventsPer1000Ticks = 5000;
 
 //Initializes the flow of events.
 async function work() {
-  const events = await simulation.run(timeout, 100000); // (destination, total events sent).
+  const events = await simulation.run(bal, 100000); // (destination, total events sent).
   console.log("done");
   stats.summary();
   //eventSummary(events);
@@ -71,28 +74,34 @@ async function work() {
   eventSummary(postIncidentEvents);
   console.log("Compare");
   eventCompare(preIncidentEvents, postIncidentEvents);
-  stageSummary([timeout, cms, bal, s1, s2, s3, s4, s5, s6]);
+  stageSummary([bal, timeout1, timeout2, cms1, cms2, s1, s2, s3, s4, s5, s6]);
 }
 
-// sets rate of 50% packet loss in the cms stage
+//ets rate of 50% packet loss in the cms stages
 function breakcms() {
-  cms.percentDropPackets = 0.5; 
+  cms1.percentDropPackets = 0.5; 
+  cms2.percentDropPackets = 0.5; 
 }
 
-//stats
+//Stats
 function poll() {
   const now = metronome.now();
   const eventRate = simulation.getArrivalRate();
 
   stats.record("poll", {
     now, eventRate,
-    packetDrop: cms.percentDropPackets,
-    networkInbound: cms.getIncomingTrafficRate(),
-    networkOutbound: cms.getOutgoingTrafficRate(),
-    isNetworkCongested: cms.getOutgoingTrafficRate() < cms.getIncomingTrafficRate() * 0.98
+    cms1PacketDrop: cms1.percentDropPackets,
+    cms1NetworkInbound: cms1.getIncomingTrafficRate(),
+    cms1NetworkOutbound: cms1.getOutgoingTrafficRate(),
+    cms1IsNetworkCongested: cms1.getOutgoingTrafficRate() < cms1.getIncomingTrafficRate() * 0.98,
+    
+    cms2PacketDrop: cms2.percentDropPackets,
+    cms2NetworkInbound: cms2.getIncomingTrafficRate(),
+    cms2NetworkOutbound: cms2.getOutgoingTrafficRate(),
+    cms2IsNetworkCongested: cms2.getOutgoingTrafficRate() < cms2.getIncomingTrafficRate() * 0.98
   });
 }
 
 work();
 metronome.setInterval(poll, 1000);
-metronome.setTimeout(breakcms, 5000); // represents logical cluster de-scheduling & causes event timeouts
+metronome.setTimeout(breakcms, 5000); // represents logical cluster de-scheduling, leading to event timeouts
