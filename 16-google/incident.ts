@@ -1,10 +1,12 @@
 /**
  * An exploration which demonstrates packet loss and network congestion
- * after clusters and their network control planes are de-scheduled 
- * and cluster management software are descheduled shortly afterward.
+ * after clusters, their network control planes, and their cluster 
+ * management software are de-scheduled.
  * 
- * This exploration exists to prove the design of the Database and Balancer
- * appropriately mock the architecture and problems listed in the incident report.
+ * This exploration exists to prove the design of the Database, Balancer,
+ * and wire stages appropriately mock the architecture and problems 
+ * listed in the incident report, particularly the failures described
+ * for Google's Cloud Interconnect service.
  * 
  */
 
@@ -42,8 +44,8 @@ const db2 = new Cluster([s4, s5, s6]);
 //balancer
 const bal = new Balancer([db1, db2]);
 
-
-const wire = new Wire(bal)
+//wire
+const wire = new Wire(bal);
 
 //timeout
 const timeout = new Timeout(wire);
@@ -69,18 +71,18 @@ async function work() {
   eventSummary(postIncidentEvents);
   console.log("Compare")
   eventCompare(preIncidentEvents, postIncidentEvents);
-  stageSummary([timeout, bal, s1, s2, s3, s4, s5, s6]) //In output: "Overview of event time spent in stage" and "...behavior in stage", prints info of api, bal, s1, then failing server s2.
+  stageSummary([timeout, bal, wire, s1, s2, s3, s4, s5, s6]) //In output: "Overview of event time spent in stage" and "...behavior in stage", prints info of api, bal, s1, then failing server s2.
 }
 
 //After setting a server's availability to 0, the server cannot service events.
 function breakServer() {
-  wire.percentDropPackets = 0.1;
+  wire.percentDropPackets = 0.5; // 50% packets drop
 }
 
 //Initiates network congestion in the load balancer, i.e. cluster management software.
-function balancerCapacityChange() {
+/*function balancerCapacityChange() {
   bal.queueCapacity = 5;
-}
+}*/
 
 //stats
 function poll() {
@@ -98,5 +100,5 @@ function poll() {
 
 work();
 metronome.setInterval(poll, 1000);
-metronome.setTimeout(breakServer, 5000); // represents logical cluster de-scheduling
-metronome.setTimeout(balancerCapacityChange, 5000); // represents queue backup
+metronome.setTimeout(breakServer, 5000); // represents logical cluster de-scheduling & causes event timeouts
+//metronome.setTimeout(balancerCapacityChange, 5000); // represents queue backup

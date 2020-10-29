@@ -13,7 +13,7 @@ export class Wire extends WrappedStage {
 
   constructor(protected wrapped: Stage) {
     super(wrapped);
-    metronome.setInterval(() => this.resetCounts(), this.interval)
+    metronome.setInterval(() => this.resetCounts(), this.interval);
   }
 
   async workOn(event: Event): Promise<void> {
