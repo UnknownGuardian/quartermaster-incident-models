@@ -4,9 +4,9 @@
  * management software are de-scheduled.
  * 
  * This exploration exists to prove the design of the Database, Balancer,
- * and wire stages appropriately mock the architecture and problems 
- * listed in the incident report, particularly the failures described
- * for Google's Cloud Interconnect service.
+ * and Cluster Management Software stages appropriately mock the 
+ * architecture and problems listed in the incident report, particularly 
+ * the failures described for Google's Cloud Interconnect service.
  * 
  */
 
@@ -21,7 +21,7 @@ import {
 } from "../../src";
 import { Cluster, Server } from "./database"
 import { Balancer } from "./balancer";
-import { Wire } from "./wire";
+import { ClusterManagementSoftware } from "./cluster-management-software";
 
 //database 1
 //Server 1
@@ -44,11 +44,11 @@ const db2 = new Cluster([s4, s5, s6]);
 //balancer
 const bal = new Balancer([db1, db2]);
 
-//wire
-const wire = new Wire(bal);
+//cms
+const cms = new ClusterManagementSoftware(bal);
 
 //timeout
-const timeout = new Timeout(wire);
+const timeout = new Timeout(cms);
 timeout.timeout = 172; // events time out after x ticks. x = 75% of mean cumulative distribution
 
 // scenario
@@ -62,27 +62,22 @@ async function work() {
   console.log("done");
   stats.summary();
   //eventSummary(events);
-  const preIncidentEvents = events.slice(0, 1000 * 5)
+  const preIncidentEvents = events.slice(0, 1000 * 5);
   const postIncidentEvents = events.slice(1000 * 5);
 
-  console.log("Pre")
+  console.log("Pre");
   eventSummary(preIncidentEvents);
-  console.log("Post")
+  console.log("Post");
   eventSummary(postIncidentEvents);
-  console.log("Compare")
+  console.log("Compare");
   eventCompare(preIncidentEvents, postIncidentEvents);
-  stageSummary([timeout, bal, wire, s1, s2, s3, s4, s5, s6]) //In output: "Overview of event time spent in stage" and "...behavior in stage", prints info of api, bal, s1, then failing server s2.
+  stageSummary([timeout, cms, bal, s1, s2, s3, s4, s5, s6]);
 }
 
-//After setting a server's availability to 0, the server cannot service events.
-function breakServer() {
-  wire.percentDropPackets = 0.5; // 50% packets drop
+// sets rate of 50% packet loss in the cms stage
+function breakcms() {
+  cms.percentDropPackets = 0.5; 
 }
-
-//Initiates network congestion in the load balancer, i.e. cluster management software.
-/*function balancerCapacityChange() {
-  bal.queueCapacity = 5;
-}*/
 
 //stats
 function poll() {
@@ -91,14 +86,13 @@ function poll() {
 
   stats.record("poll", {
     now, eventRate,
-    packetDrop: wire.percentDropPackets,
-    networkInbound: wire.getIncomingTrafficRate(),
-    networkOutbound: wire.getOutgoingTrafficRate(),
-    isNetworkCongested: wire.getOutgoingTrafficRate() < wire.getIncomingTrafficRate() * 0.98
+    packetDrop: cms.percentDropPackets,
+    networkInbound: cms.getIncomingTrafficRate(),
+    networkOutbound: cms.getOutgoingTrafficRate(),
+    isNetworkCongested: cms.getOutgoingTrafficRate() < cms.getIncomingTrafficRate() * 0.98
   });
 }
 
 work();
 metronome.setInterval(poll, 1000);
-metronome.setTimeout(breakServer, 5000); // represents logical cluster de-scheduling & causes event timeouts
-//metronome.setTimeout(balancerCapacityChange, 5000); // represents queue backup
+metronome.setTimeout(breakcms, 5000); // represents logical cluster de-scheduling & causes event timeouts

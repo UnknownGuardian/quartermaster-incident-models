@@ -1,6 +1,6 @@
 import { Stage, Event, metronome, WrappedStage } from "../../src";
 
-export class Wire extends WrappedStage {
+export class ClusterManagementSoftware extends WrappedStage {
   public percentDropPackets = 0;
 
   private lastInboundSampled: number = 0;
@@ -35,7 +35,7 @@ export class Wire extends WrappedStage {
     this.outboundCounter = 0;
   }
 
-  // needs to be events / 1000 ticks
+  // events received / 1000 ticks
   public getIncomingTrafficRate(): number {
     return this.lastInboundSampled * 1000 / this.interval;
   }

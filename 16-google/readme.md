@@ -10,7 +10,7 @@ Multiple clusters and supporting infrastructure being de-sechuled due to a defec
 
 ## Expectations
 
-Expecting near-100% success rate of events being returned by servers. Instead, some servers fail, creating a backlog of events. The failed cluster management software also begins showing packet failures, and eventually the events caught in the congested network timeout. Expect the output to display network congestion, higher latency, and event failures at multiple bottlenecks at different phases of the incident..
+Expecting near-100% success rate of events being returned by servers. Instead, the failed cluster management software begins showing packet failures, and eventually the events caught in the congested network timeout. Expect the output to display network congestion, higher latency, and event failures.
 
 ## Diagrams
 
