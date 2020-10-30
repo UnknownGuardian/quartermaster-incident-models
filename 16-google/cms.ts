@@ -17,6 +17,7 @@ export class ClusterManagementSoftware extends TimedDependency {
     else if (r == 1 && this.queue2 < this.queueLimit)
       this.queue2++;
     else  {
+      //metronome.wait(latency);
       if (r == 0)
         this.queue1++;
       else if (r == 1)

@@ -2,10 +2,10 @@
  * An exploration which demonstrates packet loss and network congestion
  * after clusters' cluster management software are de-scheduled.
  * 
- * This exploration exists to prove the design of the Database, ClusterManagementSoftware,
- * and Cluster Management Software stages appropriately mock the 
- * architecture and problems listed in the incident report, particularly 
- * the failures described for Google's Cloud Interconnect service.
+ * This exploration exists to prove the design of the Database, Cluster 
+ * Management Software, and BGP stages appropriately mock the architecture 
+ * and problems listed in the incident report, particularly the failures 
+ * described for Google's Cloud Interconnect service.
  * 
  */
 
