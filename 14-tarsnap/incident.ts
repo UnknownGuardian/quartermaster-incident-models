@@ -5,8 +5,9 @@
  * 
  */
 
-// TODO eliminate source of unnecessary latency that makes program run past poll times.
+// TODO eliminate source of unnecessary latency that makes program run past poll times. DONE eliminate queue from server.ts
 // TODO calculateDereferenceLog run 142 times over incident.
+// TODO find out mismatch between isFSRunning and diskUsed during output
 
 
 import {
@@ -30,7 +31,7 @@ import {
   timeout.timeout = 300; // events time out after x ticks. x = 75% of mean cumulative distribution
 
   const redo = new Redo(timeout);
-  redo.attempts = 10;
+  redo.attempts = 2;
 
   const fs = new Filesystem(redo);
 
@@ -45,7 +46,6 @@ import {
   async function work() {
     const events = await simulation.run(api, 80000); // (destination, total events sent).
     console.log("done");
-  
     eventSummary(events);
     stageSummary([api, fs, redo, timeout, S3]);
     stats.summary(true);
@@ -54,7 +54,7 @@ import {
   // Triggers the timeout failures
   function breakS3AndRedo() {
         S3.availability = 0.980; // "The overall S3 request failure rate did not significantly increase"
-        //timeout.timeout = 3; // this increases the failure rate
+        //timeout.timeout = 3; // this increases the failure rate // TODO play with queue times or replace queue with changes to mean latency in incident.ts?
         redo.redoRate /= 100; // this increases the rate of retries
     }
 
@@ -92,10 +92,10 @@ import {
     const dereferenceLog = fs.dereferenceLog;
     const diskUsed = fs.diskUsed;
     const deletableEvents = fs.dereferenced;
-    const TarsnapRunning = fs.FSRunning;
+    const isFSRunning = fs.FSRunning;
   
     stats.record("poll", {
-      now, eventRate, TarsnapRunning, diskUsed, dereferenceLog, deletableEvents
+      now, eventRate, isFSRunning, diskUsed, dereferenceLog, deletableEvents
     });
   }
 

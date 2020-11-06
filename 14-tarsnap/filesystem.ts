@@ -6,8 +6,8 @@ export class Filesystem extends Stage {
   public diskUsed: number = 0;
   public dereferenced: number = 0;
   public dereferenceLog: number = 0;
-  public cleanupRate: number = 4500;
-  public logRate: number = 4000;
+  public cleanupRate: number = 2001;
+  public logRate: number = 2000;
   public cleanupDereferenced: boolean = true;
   public FSRunning: boolean = true;
 
@@ -19,14 +19,14 @@ export class Filesystem extends Stage {
   async workOn(event: Event): Promise<void> {
     await this.write(event);
     //const latency = normal(200, 10); // time the event spends "stored" on the server.
-    //await metronome.wait(latency); 
-    this.dereferenced++; // TODO have this.dereferenced++ happen after this await function happens.
+    //await metronome.wait(latency); // TODO have this.dereferenced++ happen after this await function happens.
+    this.dereferenced++; 
   }
 
   async write(event: Event): Promise<void> {
     if (this.diskUsed >= this.diskCapacity) {
         this.FSRunning = false;
-        throw "fail"; // unhanlded promise rejection warning = warning, event handling not handling a thrown "fail".
+        throw "fail"; // unhandled promise rejection warning = warning, event handling not handling a thrown "fail".
     }
     this.FSRunning = true;
     await this.wrapped.accept(event);

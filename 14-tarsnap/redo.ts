@@ -15,7 +15,7 @@ export class Redo extends WrappedStage {
     while (attempt <= this.attempts) {
       try {
         const latency = normal(this.redoRate, 2); //latency between 6 and 10
-        await metronome.wait(latency);
+        //await metronome.wait(latency);
         await this.wrapped.accept(event);
         return;
       }
