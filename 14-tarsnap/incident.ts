@@ -11,101 +11,79 @@
 
 
 import {
-    metronome,
-    simulation,
-    stats,
-    eventSummary,
-    stageSummary,
-    Timeout,
-    Retry,
-    FIFOQueue
-  } from "../../src";
-  import { Redo } from "./redo";
-  import { S3Server } from "./server";
-  import { Filesystem } from "./filesystem";
-  import { APIService } from "./api";
+  metronome,
+  simulation,
+  stats,
+  eventSummary,
+  stageSummary,
+  Timeout,
+  Retry,
+} from "../../src";
+import { S3Server } from "./server";
+import { Filesystem } from "./filesystem";
+import { APIService } from "./api";
 
-  const S3 = new S3Server();
+const S3 = new S3Server();
 
-  const timeout = new Timeout(S3);
-  timeout.timeout = 300; // events time out after x ticks. x = 75% of mean cumulative distribution
+//const timeout = new Timeout(S3);
+//timeout.timeout = 300; // events time out after x ticks. x = 75% of mean cumulative distribution
 
-  const redo = new Redo(timeout);
-  redo.attempts = 2;
+//const redo = new Redo(timeout);
+//redo.attempts = 2;
+const retry = new Retry(S3);
+retry.attempts = 5;
 
-  const fs = new Filesystem(redo);
+const fs = new Filesystem(retry);
 
-  const api = new APIService(fs);
-  
-  // scenario
-  simulation.keyspaceMean = 1000;
-  simulation.keyspaceStd = 200;
-  simulation.eventsPer1000Ticks = 1000;
-  
-  // Initializes the flow of events.
-  async function work() {
-    const events = await simulation.run(api, 80000); // (destination, total events sent).
-    console.log("done");
-    eventSummary(events);
-    stageSummary([api, fs, redo, timeout, S3]);
-    stats.summary(true);
-  }
+const api = new APIService(fs);
 
-  // Triggers the timeout failures
-  function breakS3AndRedo() {
-        S3.availability = 0.980; // "The overall S3 request failure rate did not significantly increase"
-        //timeout.timeout = 3; // this increases the failure rate // TODO play with queue times or replace queue with changes to mean latency in incident.ts?
-        redo.redoRate /= 100; // this increases the rate of retries
-    }
+// scenario
+simulation.keyspaceMean = 1000;
+simulation.keyspaceStd = 200;
+simulation.eventsPer1000Ticks = 1000;
 
-  function calculateDereferenceLog() {
-    /*
-    fs.diskUsed -= fs.dereferenceLog; // remove old log from diskUsed
-    if (fs.FSRunning)
-        fs.dereferenceLog = fs.dereferenced;
-    else
-        fs.dereferenceLog += fs.dereferenced; // TODO flawed logic here. dereferenceLog should equal dereferenced unless this.FSRunning is false. Then this happens as written.
-    fs.diskUsed += fs.dereferenceLog; // add new log to diskUsed
-    */
-    fs.diskUsed -= fs.dereferenceLog; // remove old log from diskUsed
-    if (fs.cleanupDereferenced)
-        fs.dereferenceLog = fs.dereferenced;
-    else
-        fs.dereferenceLog += fs.dereferenced;
-    fs.diskUsed += fs.dereferenceLog; // add new log to diskUsed
-
-    }
-
-  // Simulates the background job aborting multiple times.
-  function breakDereferenceLog() {
-        fs.logRate = 100;
-  }
-  
-  
-  function breakFSCleanup() {
-        fs.cleanupDereferenced = false;
-  }
-
-  function poll() {
-    const now = metronome.now();
-    const eventRate = simulation.getArrivalRate() / 2;
-    const dereferenceLog = fs.dereferenceLog;
-    const diskUsed = fs.diskUsed;
-    const deletableEvents = fs.dereferenced;
-    const isFSRunning = fs.FSRunning;
-  
-    stats.record("poll", {
-      now, eventRate, isFSRunning, diskUsed, dereferenceLog, deletableEvents
-    });
-  }
+// Initializes the flow of events.
+async function work() {
+  const events = await simulation.run(api, 80000); // (destination, total events sent).
+  const pre = events.slice(0, 5000 * simulation.eventsPer1000Ticks / 1000);
+  const post = events.slice(5000 * simulation.eventsPer1000Ticks / 1000);
 
 
-  work();
-  metronome.setInterval(poll, 500);
-  metronome.setInterval(() => calculateDereferenceLog(), fs.logRate);
-  metronome.setInterval(() => fs.cleanup(), fs.cleanupRate); 
-  metronome.setTimeout(breakS3AndRedo, 5000);
-  metronome.setTimeout(breakFSCleanup, 5000);
-  metronome.setTimeout(breakDereferenceLog, 5000);
+  console.log("Pre:");
+  eventSummary(pre);
+  console.log("Post:");
+  eventSummary(post);
 
-  // Unresolved promise, 
+
+  console.log("done");
+  eventSummary(events);
+  stageSummary([api, fs, retry, S3]);
+  stats.summary(true);
+}
+
+
+function fileSystemCleanupJobFailed() {
+  fs.diskIsFull = true;
+
+  //S3.availability = 0.980; // "The overall S3 request failure rate did not significantly increase"
+  //timeout.timeout = 3; // this increases the failure rate // TODO play with queue times or replace queue with changes to mean latency in incident.ts?
+  //redo.redoRate /= 100; // this increases the rate of retries
+}
+
+function poll() {
+  const now = metronome.now();
+  const eventRate = simulation.getArrivalRate() / 2;
+  /*const dereferenceLog = fs.dereferenceLog;
+  const diskUsed = fs.diskUsed;
+  const deletableEvents = fs.dereferenced;
+  const isFSRunning = fs.FSRunning;*/
+
+  stats.record("poll", {
+    now, eventRate, /*isFSRunning, diskUsed, dereferenceLog, deletableEvents*/
+  });
+}
+
+
+work();
+metronome.setInterval(poll, 500);
+//metronome.setTimeout(fileSystemCleanupJobFailed, 5000);
