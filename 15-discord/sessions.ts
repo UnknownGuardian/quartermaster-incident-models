@@ -27,9 +27,8 @@ export class Sessions extends WrappedStage {
 
   }
 
-  public getResourcesUsed() {
-
-    return (this.inQueue as any).length() * this.memoryNeededPerEvent;
+  public getResourcesUsed(): number {
+    return this.hasCrashed ? 0 : (this.inQueue as any).length() * this.memoryNeededPerEvent;
   }
 
 
