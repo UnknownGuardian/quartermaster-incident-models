@@ -6,11 +6,7 @@ https://www.traviscistatus.com/incidents/khzk8bg4p9sy
 
 ## Expectations
 
-http://mail.tarsnap.com/tarsnap-announce/msg00035.html
-
-## Diagram
-
-version 1:
+Expecting near 100 percent success rate of events passing through filesystem and for the failure rates of retried events to remain minimal. Instead, the failure rate of retried events increases, then all events passing through filesystem fail. 
 
 ## Explanation
 

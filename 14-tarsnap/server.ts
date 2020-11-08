@@ -6,19 +6,14 @@ export class S3Server extends Stage {
   public std: number = 20;
   public errorStd: number = 20;
 
-  public availability = 0.9995;
-
+  public availability = 0.9900;
 
   constructor() {
     super();
-    this.inQueue = new FIFOQueue(1, 50); //queue length; ( (Events a worker can run), (number of workers) ) // This adds unnecessary latency
+    this.inQueue = new FIFOQueue(Infinity, 50);
   }
 
-
-
   async workOn(event: Event): Promise<void> {
-
-
     const numPreviousFails = (event as any)["num-failures"] || 0;
     const shouldProbablyFail = numPreviousFails > 0;
     const shouldAlwaysFail = numPreviousFails > 3;
@@ -30,8 +25,8 @@ export class S3Server extends Stage {
     }
 
     // there is some chance of a success
-    // but failing is more likely if we have failed before
-    const available = shouldProbablyFail ? Math.random() < this.availability / 2 : Math.random() < this.availability;
+    // but failing is more likely if we have failed before 
+    const available = shouldProbablyFail ? (Math.random() < (this.availability / 2)) : (Math.random() < this.availability);
     if (available) {
       const latency = normal(this.mean, this.std);
       await metronome.wait(latency);
@@ -49,6 +44,7 @@ export class S3Server extends Stage {
       await metronome.wait(latency);
     }
 
+    //if not available
     return Promise.reject("fail");
   }
 
@@ -58,7 +54,6 @@ export class S3Server extends Stage {
     } else {
       (event as any)["num-failures"]++;
     }
-
     throw "fail"
   }
 }
