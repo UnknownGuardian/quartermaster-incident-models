@@ -11,5 +11,5 @@ Multiple clusters and supporting infrastructure being de-sechuled due to a defec
 ## Expectations
 
 Normally expecting near-100% success rate of events being returned by servers. Instead:
-* The failed cluster management software begins showing 50% packet failures at 5000 ticks caused by timeouts in the BGP.
-* Greater event latency due to network congestion in the BGP.
+* The failed cluster management software begins showing 50% packet failures at 5000 ticks caused by timeouts in the Region.
+* Greater event latency due to network congestion in the Region.

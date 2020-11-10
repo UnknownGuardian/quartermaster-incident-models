@@ -1,6 +1,6 @@
 import { Stage, Event, metronome, WrappedStage } from "../../src";
 
-export class BGP extends WrappedStage {
+export class Region extends WrappedStage {
   public percentDropPackets = 0.0005;
 
   private lastInboundSampled: number = 0;
