@@ -1,7 +1,7 @@
 import { Stage, Event, metronome, WrappedStage } from "../../src";
 
 export class BGP extends WrappedStage {
-  public percentDropPackets = 0;
+  public percentDropPackets = 0.0005;
 
   private lastInboundSampled: number = 0;
   private lastOutboundSampled: number = 0;

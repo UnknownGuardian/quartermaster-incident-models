@@ -19,22 +19,14 @@ import {
   eventCompare
 } from "../../src";
 import { Cluster, Server } from "./database"
-import { ClusterManagementSoftware } from "./cms";
+import { ClusterManagementSoftware } from "./cluster-management-software";
 import { BGP } from "./bgp";
 
-//Cluster 1
-//Server 1
-//Server 2
-//Server 3
 const s1 = new Server();
 const s2 = new Server();
 const s3 = new Server();
 const db1 = new Cluster([s1, s2, s3]);
 
-//Cluster 2
-//Server 4
-//Server 5
-//Server 6
 const s4 = new Server();
 const s5 = new Server();
 const s6 = new Server();
@@ -44,13 +36,11 @@ const db2 = new Cluster([s4, s5, s6]);
 const bgp1 = new BGP(db1);
 const bgp2 = new BGP(db2);
 
-//Timeout 1 and 2
 const timeout1 = new Timeout(bgp1);
 const timeout2 = new Timeout(bgp2);
 timeout1.timeout = 172;
 timeout2.timeout = 172;
 
-//Cluster Management Software
 const cms = new ClusterManagementSoftware([timeout1, timeout2]);
 
 //Scenario
@@ -82,16 +72,6 @@ function breakbgp() {
   bgp2.percentDropPackets = 0.5; 
 }
 
-//Resets ClusterManagementSoftware queue
-function resetClusterManagementSoftware() {
-  cms.queue1 = 0;
-  cms.queue2 = 0;
-}
-
-/*function breakBGP() {
-  bgp.BGPWorking = false;
-}*/
-
 //Stats
 function poll() {
   const now = metronome.now();
@@ -113,5 +93,4 @@ function poll() {
 
 work();
 metronome.setInterval(poll, 1000);
-metronome.setInterval(resetClusterManagementSoftware, 1000);
 metronome.setTimeout(breakbgp, 5000); // represents logical cluster de-scheduling, leading to event timeouts
