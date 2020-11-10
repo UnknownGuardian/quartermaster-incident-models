@@ -6,6 +6,9 @@
  * appropriately mock the architecture and problems listed in the incident report.
  */
 
+// TODO have the readme.md mimic the formatting of Matt's other readme files
+// TODO 
+
 import {
   metronome,
   simulation,
@@ -34,7 +37,7 @@ simulation.eventsPer1000Ticks = 1000;
 
 // Initializes the flow of events.
 async function work() {
-  const events = await simulation.run(api, 50000); // (destination, total events sent).
+  const events = await simulation.run(api, 30000); // (destination, total events sent).
   const pre = events.slice(0, 5000 * simulation.eventsPer1000Ticks / 1000);
   const post = events.slice(5000 * simulation.eventsPer1000Ticks / 1000);
 
