@@ -19,7 +19,7 @@ export class S3Server extends Stage {
     const shouldAlwaysFail = numPreviousFails > 3;
 
     if (shouldAlwaysFail) {
-      const latency = normal(4800, 100);
+      const latency = normal(4880, 100);
       await metronome.wait(latency);
       return Promise.reject("fail");
     }

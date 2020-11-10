@@ -6,9 +6,6 @@
  * appropriately mock the architecture and problems listed in the incident report.
  */
 
-// TODO have the readme.md mimic the formatting of Matt's other readme files
-// TODO 
-
 import {
   metronome,
   simulation,

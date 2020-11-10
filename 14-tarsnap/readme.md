@@ -6,7 +6,9 @@ https://www.traviscistatus.com/incidents/khzk8bg4p9sy
 
 ## Expectations
 
-Expecting near 100 percent success rate of events passing through filesystem and for the failure rates of retried events to remain minimal. Instead, the failure rate of retried events increases, then all events passing through filesystem fail. 
+- The failure rate of retried events starts higher than normal - 4.88 seconds.
+- Near 100% event success rate before 5000 ticks.
+- After 5000 ticks, all events passing through filesystem fail.
 
 ## Explanation
 
