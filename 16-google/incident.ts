@@ -50,7 +50,7 @@ async function work() {
   const events = await simulation.run(timeout, 100000); // (destination, total events sent).
   console.log("done");
   stats.summary();
-  //eventSummary(events);
+  eventSummary(events);
   const preIncidentEvents = events.slice(0, 1000 * 5);
   const postIncidentEvents = events.slice(1000 * 5);
 
@@ -79,12 +79,12 @@ function poll() {
     region1PacketDrop: region1.percentDropPackets,
     region1Inbound: region1.getIncomingTrafficRate(),
     region1Outbound: region1.getOutgoingTrafficRate(),
-    region1IsCongested: region1.getOutgoingTrafficRate() < region1.getIncomingTrafficRate() * 0.98,
+    region1IsCongested: region1.getOutgoingTrafficRate() < region1.getIncomingTrafficRate() * 0.98, // .98 is an acceptable congestion rate
     
     region2PacketDrop: region2.percentDropPackets,
     region2Inbound: region2.getIncomingTrafficRate(),
     region2Outbound: region2.getOutgoingTrafficRate(),
-    region2IsCongested: region2.getOutgoingTrafficRate() < region2.getIncomingTrafficRate() * 0.98
+    region2IsCongested: region2.getOutgoingTrafficRate() < region2.getIncomingTrafficRate() * 0.98 // .98 is an acceptable congestion rate
   });
 }
 
