@@ -81,11 +81,9 @@ Each directory should contain this format:
 ```
 {incident id}-{company}
   - incident.ts
-  - expectations.md
   ... other files/directories as needed
 ```
 
-| File/Directory    | Description                                                                                                         |
-| ----------------- | ------------------------------------------------------------------------------------------------------------------- |
-| `incident.ts`     | The entry point for running the incidents. This is called when `npm run model {incident id}-{company}` is executed. |
-| `expectations.md` | A simple bulleted list, in English words, which describe important outputs.                                         |
+| File/Directory | Description                                                                                                         |
+| -------------- | ------------------------------------------------------------------------------------------------------------------- |
+| `incident.ts`  | The entry point for running the incidents. This is called when `npm run model {incident id}-{company}` is executed. |

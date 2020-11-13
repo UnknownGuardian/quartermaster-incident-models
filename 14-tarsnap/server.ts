@@ -1,4 +1,4 @@
-import { FIFOQueue, Stage, Event, Response, metronome, normal } from "../../src";
+import { FIFOQueue, Stage, Event, Response, metronome, normal } from "@byu-se/quartermaster";
 
 export class S3Server extends Stage {
   public mean: number = 100;

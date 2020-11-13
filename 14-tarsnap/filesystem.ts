@@ -1,4 +1,4 @@
-import { Stage, Event } from "../../src";
+import { Stage, Event } from "@byu-se/quartermaster";
 
 // Allow passage to lower level stuff normally
 // when failed (no resources), then it starts rejecting all events

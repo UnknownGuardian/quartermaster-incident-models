@@ -13,7 +13,7 @@ import {
   eventSummary,
   stageSummary,
   Retry,
-} from "../../src";
+} from "@byu-se/quartermaster";
 import { S3Server } from "./server";
 import { Filesystem } from "./filesystem";
 import { APIService } from "./api";
