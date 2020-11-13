@@ -1,0 +1,3 @@
+- Events passed to the createVM process in the virtualization layer will fail upon arrival.
+- `availableResources` will rise slowly when `janitorProcessWorking` is false
+- `availableResources` caps at 1

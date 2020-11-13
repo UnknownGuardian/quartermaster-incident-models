@@ -1,0 +1,6 @@
+- Redis instances warm up to have lots of objects in their cache (probably around 100)
+- at tick 50,000, number of objects drops to 0 for first 5 nodes
+- repeatedly afterwards, every 50,000 ticks until tick 200,000, you see a (possibly small) spike in concurrent database connections (cache refreshing)
+- at tick 200,000, number of objects drops to 0 for first 5 nodes and `apiState` goes from up to down
+- `redis-x` never fills for first 5 nodes, slowly decreases in size for last 5 nodes.
+- at tick 300,000 `apiState` goes up, `redis-x` starts to increase up to around 100

@@ -1,0 +1,2 @@
+- near-100% success rate of events being returned by MySQL servers. Instead, some servers (s2) fail and lose availability, resulting in a high rate of event failures.
+- Availability for all servers is 0.9995 until tick 5000 when they drop to 0

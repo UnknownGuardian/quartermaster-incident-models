@@ -1,0 +1,6 @@
+- split into two parts, the first segment is considered healthy, the second is unhealthy
+- 1st segment: `cpu` is hovering around 20%
+- 1st segment: `memory` is around 6 million
+- 2nd segment: `cpu` slowly starts increasing at tick 4000 to reach about 2 at end of simulation
+- 2nd segment: `memory` starts rapildy increasing at tick 4000
+- both flatten out at around tick 54000

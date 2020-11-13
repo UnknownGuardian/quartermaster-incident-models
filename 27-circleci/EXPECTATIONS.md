@@ -1,0 +1,3 @@
+- `eventRate` increases, then drops off after there is no more events to send
+- `queueSize` starts at 0 for sometime, then increases drastically
+- the simulation takes a long time to execute, and processes queue slowly

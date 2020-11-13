@@ -1,0 +1,1 @@
+- `postgresStatus` is running until tick `eventRate` approaches 1000, then it moves to safety-shutdown for the end of the simulation

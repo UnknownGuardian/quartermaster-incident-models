@@ -1,0 +1,1 @@
+- `dashboardInstances` drops to 0 as `cpu` is high (greater than 90%)
