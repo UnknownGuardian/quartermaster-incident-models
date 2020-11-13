@@ -11,7 +11,7 @@ import {
   simulation,
   stats,
   stageSummary
-} from "../../src";
+} from "@byu-se/quartermaster";
 
 import { Database } from "./database"
 import { BuildService } from "./build-service"

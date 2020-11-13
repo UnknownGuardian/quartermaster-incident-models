@@ -1,4 +1,4 @@
-import { Stage, Event, metronome, normal } from "../../src";
+import { Stage, Event, metronome, normal } from "@byu-se/quartermaster";
 
 export class APIService extends Stage {
   constructor(protected wrapped: Stage) {

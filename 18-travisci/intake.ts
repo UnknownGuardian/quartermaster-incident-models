@@ -1,4 +1,4 @@
-import { Event, FIFOQueue, Stage } from "../../src";
+import { Event, FIFOQueue, Stage } from "@byu-se/quartermaster";
 
 export class Intake extends Stage {
   constructor(protected wrapped: Stage) {

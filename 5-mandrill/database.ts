@@ -1,4 +1,4 @@
-import { Event, metronome, TimedDependency } from "../../src";
+import { Event, metronome, TimedDependency } from "@byu-se/quartermaster";
 
 export type Mode = "running" | "safety-shutdown"
 export class Database extends TimedDependency {

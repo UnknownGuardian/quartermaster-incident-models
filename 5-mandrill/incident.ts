@@ -11,7 +11,7 @@ import {
   eventSummary,
   metronome,
   stats
-} from "../../src";
+} from "@byu-se/quartermaster";
 import { Database } from "./database";
 import { APIService } from "./api-service";
 

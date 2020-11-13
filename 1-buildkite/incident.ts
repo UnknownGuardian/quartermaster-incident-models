@@ -13,7 +13,7 @@ import {
   eventSummary,
   metronome,
   stats
-} from "../../src";
+} from "@byu-se/quartermaster";
 import { ELB } from "./elb"
 import { Database } from "./database"
 import { DashboardService } from "./dashboard-service"

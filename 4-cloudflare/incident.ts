@@ -10,7 +10,7 @@ import {
   simulation,
   eventSummary,
   Event
-} from "../../src";
+} from "@byu-se/quartermaster";
 import { EmailOfuscationService } from "./email-obfuscation-service";
 import { RagelParser } from "./ragel-service";
 

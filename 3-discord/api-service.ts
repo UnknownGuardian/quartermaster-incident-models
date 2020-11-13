@@ -1,4 +1,4 @@
-import { Event, FIFOQueue, metronome, Stage, TimedDependency } from "../../src";
+import { Event, FIFOQueue, metronome, Stage, TimedDependency } from "@byu-se/quartermaster";
 
 type Status = "up" | "down";
 

@@ -19,7 +19,7 @@ import {
   Timeout,
   Retry,
   FIFOQueue
-} from "../../src";
+} from "@byu-se/quartermaster";
 import { Intake } from "./intake";
 import { Virtualization } from "./virtualization";
 

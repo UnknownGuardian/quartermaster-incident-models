@@ -13,7 +13,7 @@ import {
   metronome,
   stats,
   TimedDependency
-} from "../../src";
+} from "@byu-se/quartermaster";
 import { ResourceStage } from "./resource-stage";
 
 const timed = new TimedDependency();

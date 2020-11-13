@@ -1,4 +1,4 @@
-import { Event, metronome, normal, WrappedStage } from "../../src";
+import { Event, metronome, normal, WrappedStage } from "@byu-se/quartermaster";
 
 export class EmailOfuscationService extends WrappedStage {
   async workOn(event: Event): Promise<void> {

@@ -12,7 +12,7 @@ import {
   eventSummary,
   metronome,
   stats,
-} from "../../src";
+} from "@byu-se/quartermaster";
 import { APIService } from "./api-service";
 import { RedisCluster } from "./redis";
 

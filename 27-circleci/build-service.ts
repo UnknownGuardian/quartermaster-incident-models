@@ -1,4 +1,4 @@
-import { Stage, FIFOQueue, Event, metronome, normal } from "../../src";
+import { Stage, FIFOQueue, Event, metronome, normal } from "@byu-se/quartermaster";
 
 export class BuildService extends Stage {
   constructor(protected wrapped: Stage) {
