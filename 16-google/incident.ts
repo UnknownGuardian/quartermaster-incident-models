@@ -16,7 +16,6 @@ import {
   eventSummary,
   stageSummary,
   Timeout,
-  eventCompare
 } from "../../src";
 import { Cluster, Server } from "./database"
 import { Balancer } from "./balancer";
@@ -51,40 +50,40 @@ async function work() {
   console.log("done");
   stats.summary();
   eventSummary(events);
+
+  /*
   const preIncidentEvents = events.slice(0, 1000 * 5);
   const postIncidentEvents = events.slice(1000 * 5);
-
-  console.log("Pre");
+  
+  console.log("Pre-Incident Event Summary");
   eventSummary(preIncidentEvents);
-  console.log("Post");
+  console.log("Post-Incident Event Summary");
   eventSummary(postIncidentEvents);
   console.log("Compare");
-  eventCompare(preIncidentEvents, postIncidentEvents);
+  */
   stageSummary([timeout, bal, region1, region2, db1, db2, s1, s2, s3, s4, s5, s6]);
 }
 
 //Sets rate of 50% packet loss in the region stages
 function breakregion() {
-  region1.percentDropPackets = 0.5; 
-  region2.percentDropPackets = 0.5; 
+  region1.percentDropPackets = 0.5;
+  region2.percentDropPackets = 0.5;
 }
 
 //Stats
 function poll() {
   const now = metronome.now();
   const eventRate = simulation.getArrivalRate();
-
+  const congestionThreshold = 0.9; // rate at which traffic difference could be considered congestion
   stats.record("poll", {
     now, eventRate,
     region1PacketDrop: region1.percentDropPackets,
-    region1Inbound: region1.getIncomingTrafficRate(),
-    region1Outbound: region1.getOutgoingTrafficRate(),
-    region1IsCongested: region1.getOutgoingTrafficRate() < region1.getIncomingTrafficRate() * 0.98, // .98 is an acceptable congestion rate
-    
+    region1_In_Out: region1.getIncomingTrafficRate() + " / " + region1.getOutgoingTrafficRate(),
+    region1IsCongested: region1.getOutgoingTrafficRate() < region1.getIncomingTrafficRate() * congestionThreshold,
+
     region2PacketDrop: region2.percentDropPackets,
-    region2Inbound: region2.getIncomingTrafficRate(),
-    region2Outbound: region2.getOutgoingTrafficRate(),
-    region2IsCongested: region2.getOutgoingTrafficRate() < region2.getIncomingTrafficRate() * 0.98 // .98 is an acceptable congestion rate
+    region2_In_Out: region2.getIncomingTrafficRate() + " / " + region2.getOutgoingTrafficRate(),
+    region2IsCongested: region2.getOutgoingTrafficRate() < region2.getIncomingTrafficRate() * congestionThreshold
   });
 }
 
