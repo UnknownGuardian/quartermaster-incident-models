@@ -1,16 +1,16 @@
-import { Event, TimedDependency, FIFOQueue } from "../../src";
-import { Cluster } from "./database"
+import { Stage, Event, metronome, normal } from "../../src";
 
-export class Balancer extends TimedDependency {
-  public queueCapacity: number = 50;
-  constructor(protected databases: Cluster[]) {
+export class Balancer extends Stage {
+  constructor(protected wrapped: Stage[]) {
     super();
-    this.inQueue = new FIFOQueue(1, this.queueCapacity); //queue length; ( (Events a worker can run), (number of workers) )
   }
 
   async workOn(event: Event): Promise<void> {
-    // Transfer some work to a random server
-    const r = Math.floor(Math.random() * this.databases.length)
-    await this.databases[r].accept(event);
+    // Do some work
+    const latency = normal(8, 2); //latency between 6 and 10
+    await metronome.wait(latency);
+    // Transfer some work to a random region
+    const r = Math.floor(Math.random() * this.wrapped.length)
+    await this.wrapped[r].accept(event);
   }
 }
