@@ -14,7 +14,7 @@ import {
   Retry,
   simulation,
   stats
-} from "../../src";
+} from "@byu-se/quartermaster";
 import { Database } from "./database"
 import { BuildService } from "./build-service"
 

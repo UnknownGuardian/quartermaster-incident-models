@@ -13,7 +13,7 @@ import {
   simulation,
   stats,
   eventSummary, stageSummary
-} from "../../src";
+} from "@byu-se/quartermaster";
 import { MySQLCluster, MySQLServer } from "./database"
 import { Balancer } from "./balancer";
 import { APIService } from "./api-service";

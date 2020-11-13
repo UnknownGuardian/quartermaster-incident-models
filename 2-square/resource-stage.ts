@@ -1,4 +1,4 @@
-import { Event, WrappedStage, metronome } from "../../src";
+import { Event, WrappedStage, metronome } from "@byu-se/quartermaster";
 
 export class ResourceStage extends WrappedStage {
   public concurrent: number = 0;

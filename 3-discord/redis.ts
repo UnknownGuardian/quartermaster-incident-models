@@ -1,4 +1,4 @@
-import { Event, LRUCache, Stage, WrappedStage } from "../../src";
+import { Event, LRUCache, Stage, WrappedStage } from "@byu-se/quartermaster";
 
 /**
  * A model of the redis service.

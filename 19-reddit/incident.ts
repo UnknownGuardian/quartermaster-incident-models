@@ -16,7 +16,7 @@ import {
   Timeout,
   stageSummary,
   eventSummary
-} from "../../src";
+} from "@byu-se/quartermaster";
 import { Database } from "./database"
 import { APIService } from "./api-service"
 

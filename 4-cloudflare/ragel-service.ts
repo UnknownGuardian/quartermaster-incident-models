@@ -1,4 +1,4 @@
-import { Event, TimedDependency } from "../../src";
+import { Event, TimedDependency } from "@byu-se/quartermaster";
 
 export class RagelParser extends TimedDependency {
   eventsWithMalformedData: number = 0.9999;

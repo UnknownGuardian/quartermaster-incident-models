@@ -1,4 +1,4 @@
-import { Stage, metronome, normal, FIFOQueue } from "../../src";
+import { Stage, metronome, normal, FIFOQueue } from "@byu-se/quartermaster";
 
 export class Virtualization extends Stage {
   private resourcesUsed: number = 0;

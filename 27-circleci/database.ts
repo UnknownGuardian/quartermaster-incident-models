@@ -1,4 +1,4 @@
-import { Stage, FIFOQueue, Event, metronome, normal, exponential } from "../../src";
+import { Stage, FIFOQueue, Event, metronome, normal, exponential } from "@byu-se/quartermaster";
 export class Database extends Stage {
   public concurrent: number = 0;
   public latencyA = 0.06;

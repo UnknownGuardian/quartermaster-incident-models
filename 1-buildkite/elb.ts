@@ -1,4 +1,4 @@
-import { Event, Stage, metronome } from "../../src";
+import { Event, Stage, metronome } from "@byu-se/quartermaster";
 
 export type HealthCheck = (stage: Stage) => boolean;
 

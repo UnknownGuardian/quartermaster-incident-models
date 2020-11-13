@@ -1,4 +1,4 @@
-import { Stage, Event, metronome, normal } from "../../src";
+import { Stage, Event, metronome, normal } from "@byu-se/quartermaster";
 import { MySQLCluster } from "./database"
 
 export class Balancer extends Stage {
