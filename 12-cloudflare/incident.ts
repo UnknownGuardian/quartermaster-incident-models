@@ -1,8 +1,9 @@
 /**
- * An exploration which demonstrates 
+ * An exploration which demonstrates a web security service losing capacity to serve clients. After a defective regular expression 
+ * consumes cpu resources within a web application firewall, it loses capacity to serve most requests.
  * 
- * This exploration exists to prove the design of the  appropriately mock the architecture and problems listed in the 
- * incident report.
+ * This exploration exists to prove the design of the WebApplicationFirewall and ContentDeliveryNetwork appropriately mock the 
+ * architecture and problems listed in the incident report.
  * 
  */
 
@@ -10,7 +11,6 @@ import {
     metronome,
     simulation,
     stats,
-    FIFOQueue,
     eventSummary, 
     stageSummary
   } from "../../src";
@@ -28,7 +28,7 @@ import {
   
   //Initializes the flow of events.
   async function work() {
-    const events = await simulation.run(waf, 30000); // (destination, total events sent).
+    const events = await simulation.run(waf, 31000); // (destination, total events sent).
     console.log("done");
     stats.summary();
     eventSummary(events);
@@ -36,23 +36,22 @@ import {
   }
   work();
   
-  //After setting a server's availability to 0, the server cannot service events.
+  // Disables excess cpu monitoring.
   function breakCPUProtection() {
     waf.protectionWorking = false;
-    waf.availability = 0.20;
   }
-  metronome.setTimeout(breakCPUProtection, 5000);
+  metronome.setTimeout(breakCPUProtection, 2000);
   
   //stats
   function poll() {
     const now = metronome.now();
     const eventRate = simulation.getArrivalRate();
-    const queueLength = (waf.inQueue as FIFOQueue).length(); // TODO queuelength returns 0.
     const availableResources = waf.getResourceUtilization();
     const protectionOn = waf.protectionWorking;
+    const networkAvailability = waf.availability;
   
     stats.record("poll", {
-      now, eventRate, availableResources, queueLength, protectionOn
+      now, eventRate, availableResources, /*queueLength,*/ protectionOn, networkAvailability
 
     });
   }
