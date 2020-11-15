@@ -46,10 +46,12 @@ work();
 
 
 //After setting a node's availability to 0, the node cannot service events.
+//After setting pacemakerWorking to false, it can no longer select a new primary node.
 function breakSQL() {
   n1.availability = 0;
   n2.availability = 0;
   n3.availability = 0;
+  db.pacemakerWorking = false;
 }
 metronome.setTimeout(breakSQL, 5000);
 

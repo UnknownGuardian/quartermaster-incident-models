@@ -1,6 +1,8 @@
 import { Stage, Event, FIFOQueue, TimedDependency } from "../../src";
 
 export class PostgreSQLCluster extends Stage {
+  public primaryNode: number = 0;
+  public pacemakerWorking: boolean = true;
   constructor(protected cluster: PostgreSQLNode[]) {
     super();
   }
@@ -11,8 +13,14 @@ export class PostgreSQLCluster extends Stage {
     await instance.accept(event);
   }
 
-  // Choose a cluster to serve the request
+  // Choose a node to serve the request
   private pacemaker(): PostgreSQLNode {
+    if (this.pacemakerWorking) {
+      if (this.cluster[this.primaryNode].availability < 0.995) {
+        this.primaryNode = Math.floor(Math.random() * this.cluster.length);
+        return this.pacemaker();
+      }
+    }
     return this.cluster[Math.floor(Math.random() * this.cluster.length)];
   }
 }
