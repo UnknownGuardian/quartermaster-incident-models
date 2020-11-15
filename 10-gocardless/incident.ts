@@ -66,6 +66,7 @@ function poll() {
     n1: n1.availability,
     n2: n2.availability,
     n3: n3.availability,
+    pacemakerWorking: db.pacemakerWorking
   });
 }
 metronome.setInterval(poll, 1000);
