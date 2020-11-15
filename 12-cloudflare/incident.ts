@@ -14,7 +14,7 @@ import {
     eventSummary, 
     stageSummary
   } from "../../src";
-  import { ContentDeliveryNetwork } from "./content-delivery-network"
+  import { ContentDeliveryNetwork } from "./content-delivery-network";
   import { WebApplicationFirewall } from "./web-application-firewall";
 
   const cdn = new ContentDeliveryNetwork();
