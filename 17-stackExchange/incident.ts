@@ -1,6 +1,5 @@
 import {
   metronome,
-  FIFOQueue,
   simulation,
   stats, Timeout, TimedDependency, stageSummary, eventSummary
 } from "../../src";
