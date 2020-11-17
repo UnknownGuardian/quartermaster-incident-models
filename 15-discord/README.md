@@ -34,3 +34,7 @@ resources down -> uses memory -> down problem
 ## expectations
 
 the site is running and as the memory or the resource utilization is going up until it has no more space and crashes
+
+- 'crash' is false until the memory or resourceUtilization goes above 1
+- 'resourceUtilization' keeps increasing till it gets above 1 then imediately goes to 0 as the crashed service use the memory anymore
+- currently the crash seems to happen inbetween 35000 and 36000 ticks
