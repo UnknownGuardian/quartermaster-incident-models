@@ -2,7 +2,7 @@ import {
   metronome,
   FIFOQueue,
   simulation,
-  stats, Timeout, TimedDependency, stageSummary, eventSummary
+  stats, Timeout, TimedDependency, eventSummary
 } from "../../src";
 
 import { Sessions } from "./sessions"
@@ -13,9 +13,7 @@ const presence = new TimedDependency();
 const sessions = new Sessions(presence);
 const timeOut = new Timeout(sessions);
 
-// const service = new ResourceStage(presence)
-// service.maxResoursces = max amount;
-/// service.resources = 0;
+
 presence.mean = presence.errorMean = 20;
 presence.std = presence.errorStd = 5;
 
@@ -42,10 +40,6 @@ function poll() {
   const eventRate = simulation.getArrivalRate();
   const crash = sessions.hasCrashed;
   const resourceUtilization = sessions.getResourcesUsed() / sessions.maxResources;
-
-  // crashed?
-  // how long queue?
-
 
   stats.record("poll", { now, eventRate, crash, resourceUtilization });
 

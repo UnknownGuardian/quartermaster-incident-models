@@ -1,4 +1,4 @@
-import { Stage, Event, metronome, normal, FIFOQueue, WrappedStage } from "../../src";
+import { Stage, Event, FIFOQueue, WrappedStage } from "../../src";
 
 export class Sessions extends WrappedStage {
   // private resourcesUsed: number = 0;
