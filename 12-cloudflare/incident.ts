@@ -1,6 +1,6 @@
 /**
  * An exploration which demonstrates a web security service losing capacity to serve clients. After a defective regular expression 
- * consumes cpu resources within a web application firewall, it loses capacity to serve most requests.
+ * consumes cpu resources for a web application firewall, it loses capacity to serve most requests.
  * 
  * This exploration exists to prove the design of the WebApplicationFirewall and ContentDeliveryNetwork appropriately mock the 
  * architecture and problems listed in the incident report.
@@ -32,7 +32,7 @@ import {
     console.log("done");
     stats.summary();
     eventSummary(events);
-    stageSummary([waf, cdn]) //In output: "Overview of event time spent in stage" and "...behavior in stage", prints info of api, bal, s1, then failing server s2.
+    stageSummary([waf, cdn]) 
   }
   work();
   
@@ -51,8 +51,11 @@ import {
     const networkAvailability = waf.availability;
   
     stats.record("poll", {
-      now, eventRate, availableResources, /*queueLength,*/ protectionOn, networkAvailability
-
+      now, 
+      eventRate, 
+      availableResources, 
+      protectionOn, 
+      networkAvailability
     });
   }
   metronome.setInterval(poll, 1000);
