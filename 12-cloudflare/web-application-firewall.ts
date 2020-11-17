@@ -28,8 +28,8 @@ export class WebApplicationFirewall extends Stage {
       throw "fail";
   }
 
-  // a function that runs when incident conditions change and enable the defective regex to consume cpu memory.
-  // runs when protectionWorking is false and stops running when resourcesUsed reaches limit.
+  // A function that runs when incident conditions change and enable the defective regex to consume cpu memory.
+  // Runs when protectionWorking is false and stops running when resourcesUsed reaches limit.
   async RegularExpression(): Promise<void> {
       if (!this.protectionWorking && !(this.resourcesUsed >= this.maxResources))
         this.resourcesUsed+=2;

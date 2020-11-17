@@ -42,7 +42,7 @@ import {
   
   // scenario
   simulation.keyspaceMean = 1000;
-  simulation.keyspaceStd = 200; // 68% - 1000 +/- 200    97% - 1000 +/- 400     99% 1000 +/- 600 
+  simulation.keyspaceStd = 200;
   simulation.eventsPer1000Ticks = 1000;
   
   //Initializes the flow of events.
@@ -58,8 +58,12 @@ import {
   
   //After setting a server's availability to 0, the server cannot service events.
   function breakNodes() {
-    n1.availability = 0;
-    n2.availability = 0;
+    n1.nodeAvailability = false;
+    n2.nodeAvailability = false;
+  }
+
+  function breakSetPrimary() {
+
   }
   metronome.setTimeout(breakNodes, 5000);
   
@@ -71,12 +75,6 @@ import {
   
     stats.record("poll", {
       now, eventRate,
-      n1: n1.availability,
-      n2: n2.availability,
-      n3: n3.availability,
-      n4: n4.availability,
-      n5: n5.availability,
-      n6: n6.availability,
     });
   }
   metronome.setInterval(poll, 1000);
