@@ -2,7 +2,7 @@
  * An exploration which demonstrates a website losing capacity to serve
  * clients after one of the servers fail.
  * 
- * This exploration exists to prove the design of the Database and Build
+ * This exploration exists to prove the design of the DatabaseCluster and API
  * Service appropriately mock the architecture and problems listed in the 
  * incident report.
  * 
@@ -51,30 +51,54 @@ import {
     console.log("done");
     stats.summary();
     eventSummary(events);
-    stageSummary([timeout, api, dbc, sh1, n1, n2, n3]) //In output: "Overview of event time spent in stage" and "...behavior in stage", prints info of api, bal, n1, then failing server n2.
+    stageSummary([timeout, api, dbc, sh1, n1, n2, n3])
   }
   work();
   
   
   //After setting a server's availability to 0, the server cannot service events.
-  function breakNodes() {
+  function breakSomeNodes() {
     n1.nodeAvailability = false;
     n2.nodeAvailability = false;
   }
 
-  function breakSetPrimary() {
-
+  function fixSomeNodes() {
+    n1.nodeAvailability = true;
+    n2.nodeAvailability = true;
   }
-  metronome.setTimeout(breakNodes, 5000);
-  
+
+  function breakFailover() {
+    sh1.nodeFailoverWorking = false;
+    sh2.nodeFailoverWorking = false;
+    sh3.nodeFailoverWorking = false;
+  }
+
+  function breakMostNodes() {
+    n1.nodeAvailability = false;
+    n2.nodeAvailability = false;
+    //n3.nodeAvailability = false;
+    n4.nodeAvailability = false;
+    n5.nodeAvailability = false;
+    //n6.nodeAvailability = false;
+    n7.nodeAvailability = false;
+    n8.nodeAvailability = false;
+    //n9.nodeAvailability = false;
+  }
+  metronome.setTimeout(breakSomeNodes, 5000);
+  //metronome.setTimeout(fixSomeNodes, 10000);
+  //metronome.setTimeout(breakFailover, 15000);
+  //metronome.setTimeout(breakMostNodes, 15000);
   
   //stats
   function poll() {
     const now = metronome.now();
     const eventRate = simulation.getArrivalRate();
+    const failover1Working = sh1.nodeFailoverWorking;
+    const failover2Working = sh2.nodeFailoverWorking;
+    const failover3Working = sh3.nodeFailoverWorking;
   
     stats.record("poll", {
-      now, eventRate,
+      now, eventRate, failover1Working, failover2Working, failover3Working
     });
   }
   metronome.setInterval(poll, 1000);

@@ -1,6 +1,8 @@
 import { Stage, Event, normal, metronome, FIFOQueue, TimedDependency } from "../../src";
 
 export class DatabaseCluster extends Stage {
+  public primaryShard: number = 0;
+  public shardFailoverWorking: boolean = true;
   constructor(protected databaseCluster: Shard[]) {
     super();
   }
@@ -13,9 +15,9 @@ export class DatabaseCluster extends Stage {
 
   // Choose a shard to serve the request
   private sendTrafficTo(): Shard {
-    /*if (this.setPrimaryWorking) {
-      if (this.shard[this.primaryNode].availability < 0.995) {
-        this.primaryNode = Math.floor(Math.random() * this.shard.length);
+    /*if (this.failoverWorking) {
+      if (this.databaseCluster[this.primaryShard].availability < 0.995) {
+        this.primaryShard = Math.floor(Math.random() * this.databaseCluster.length);
         return this.sendTrafficTo();
       }
     }*/
@@ -27,7 +29,7 @@ export class DatabaseCluster extends Stage {
 
 export class Shard extends Stage {
   public primaryNode: number = 0;
-  public setPrimaryWorking: boolean = true;
+  public nodeFailoverWorking: boolean = true;
   constructor(protected shard: Node[]) {
     super();
   }
@@ -40,8 +42,8 @@ export class Shard extends Stage {
 
   // Choose a node to serve the request
   private sendTrafficTo(): Node {
-    if (this.setPrimaryWorking) {
-      if (this.shard[this.primaryNode].nodeAvailability == false) {
+    if (this.nodeFailoverWorking) {
+      if (this.shard[this.primaryNode].nodeAvailability == false) { // if unavailable, choose a new node
         this.primaryNode = Math.floor(Math.random() * this.shard.length);
         return this.sendTrafficTo();
       }
@@ -61,8 +63,10 @@ export class Node extends TimedDependency {
 
   async workOn(): Promise<void> {
     const latency = normal(8,2); //latency between 6 and 10
-    if (this.nodeAvailability == false)
+    if (this.nodeAvailability == false) {
+      console.log("FAILING");
       await metronome.wait(999999);
+    }
     await metronome.wait(latency);
   }
 
